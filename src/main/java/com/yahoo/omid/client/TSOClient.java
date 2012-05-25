@@ -80,7 +80,7 @@ public class TSOClient extends SimpleChannelHandler {
    private Map<Long, List<CommitQueryCallback>> isCommittedCallbacks;
    
    private Committed committed = new Committed();
-   private SharedAbortedSet aborted = new SharedAbortedSet();
+   SharedAbortedSet aborted = new SharedAbortedSet();
    private long largestDeletedTimestamp;
    private long connectionTimestamp = 0;
    private boolean hasConnectionTimestamp = false;
