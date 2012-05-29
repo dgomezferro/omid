@@ -42,9 +42,9 @@ public class SharedAbortedSet {
     }
 
     /**
-     * Remove a txn from the aborted set
+     * Remove a transaction from the aborted set
      *
-     * @param txn Id of the cleaned up transaction
+     * @param txn Cleaned up transaction
      */
     public synchronized void remove(long txn) {
         if (queuedFullAborted.peek() == null) {
@@ -57,9 +57,9 @@ public class SharedAbortedSet {
     }
 
     /**
-     * Add a txn to the aborted set
+     * Add a transaction to the aborted set
      *
-     * @param txn Id of the aborted transaction
+     * @param txn Aborted transaction
      */
     public synchronized void add(long txn) {
         aborted.add(txn);
@@ -74,58 +74,59 @@ public class SharedAbortedSet {
     }
 
     /**
-     * Nofify the end of a transaction and apply the queued clean ups.
+     * Nofify the end of a transaction and apply the queued cleanups.
      * @param txn Finished transaction
      */
     public synchronized void transactionFinished(long txn) {
         queuedFullAborted.delete(new StartedTxn(txn));
+
         // After a transaction is finished, apply all full aborts that were receieved after the transaction start
         Txn top = queuedFullAborted.peek();
         while (top instanceof FullAbortedTxn) {
-            aborted.remove(top.Ts);
+            aborted.remove(top.startTimestamp);
             queuedFullAborted.poll();
             top = queuedFullAborted.peek();
         }
     }
 
-    private static final byte StartedTxnType = 0;
-    private static final byte FullAbortedTxnType = 1;
     private static abstract class Txn {
-        public Long Ts;
-        protected byte type;
-        public Txn(Long Ts) {
-            this.Ts = Ts;
+        long startTimestamp;
+        public Txn(long startTimestamp) {
+            this.startTimestamp = startTimestamp;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof Txn && o != null) {
-                Txn txn = (Txn)o;
-                return txn.Ts == Ts && txn.type == type;
-            }
-            return false;
-        }
-
-        Integer hash = null;
         @Override
         public int hashCode() {
-            if (hash == null)
-                hash = Ts.hashCode();
-            return hash;
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Txn other = (Txn) obj;
+            if (startTimestamp != other.startTimestamp)
+                return false;
+            return true;
         }
     }
 
     private static class StartedTxn extends Txn {
-        public StartedTxn(Long Ts) {
-            super(Ts);
-            type = StartedTxnType;
+        public StartedTxn(long startTimestamp) {
+            super(startTimestamp);
         }
     }
 
     private static class FullAbortedTxn extends Txn {
-        public FullAbortedTxn(Long Ts) {
-            super(Ts);
-            type = FullAbortedTxnType;
+        public FullAbortedTxn(long startTimestamp) {
+            super(startTimestamp);
         }
     }
 }
