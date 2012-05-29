@@ -16,31 +16,29 @@
 
 package com.yahoo.omid.client;
 
-import java.util.Set;
 import java.util.HashSet;
-import java.util.Queue;
-import java.util.NoSuchElementException;
 import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
 
-//This class enables queues with efficient random deletes
-//The deletes are delayed until they reach the head of the queue
-//The top is always valid (not deleted)
-public class DeleteEfficientQueue<E> {
-    protected Queue<E> queue;
-    protected Set<E> deletedSet;
+/**
+ * This class enables queues with efficient random deletes
+ * The deletes are delayed until they reach the head of the queue
+ * The top is always valid (not deleted)
+ *
+ * @param <E> Type stored
+ */
+class DeleteEfficientQueue<E> {
+    private Queue<E> queue;
+    private Set<E> deletedSet;
 
     public DeleteEfficientQueue() {
         queue = new LinkedList<E>();
         deletedSet = new HashSet<E>();
     }
 
-    public E element() throws NoSuchElementException {
-        return element();
-    }
-
     public boolean offer(E o) {
-        boolean res = queue.offer(o);
-        return res;
+        return queue.offer(o);
     }
 
     public E peek() {
@@ -57,32 +55,26 @@ public class DeleteEfficientQueue<E> {
         return top;
     }
 
-    public E remove() throws NoSuchElementException{
-        E top =  queue.remove();
-        garbageCollectTops();
-        return top;
-    }
-
     //remove the tops till you get one that is not deleted
-    protected void garbageCollectTops() {
+    private void garbageCollectTops() {
         E nexttop = queue.peek();
-        while (nexttop != null && deletedSet.contains(nexttop)) {
+        while (deletedSet.contains(nexttop)) {
             deletedSet.remove(nexttop);
             queue.poll();
             nexttop = queue.peek();
         }
     }
 
-    //If the object is not simply the top, delay its delete
+    //If the object is not simply the top, delay its deletion
     public void delete(E o) {
         E top = queue.peek();
         assert(top != null);
         if (top.equals(o)) {
             queue.poll();
             garbageCollectTops();
-        }
-        else
+        } else {
             deletedSet.add(o);
+        }
     }
 
     public void clear() {

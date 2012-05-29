@@ -28,7 +28,7 @@ import java.util.Set;
  * The trick is to delay removal of aborts until the transactions that started before the remove invocation are
  * finished.
  */
-public class SharedAbortedSet {
+class SharedAbortedSet {
     private Set<Long> aborted = new HashSet<Long>(1000);
     private DeleteEfficientQueue<Txn> queuedFullAborted = new DeleteEfficientQueue<Txn>();
 

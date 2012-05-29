@@ -21,11 +21,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -80,7 +78,7 @@ public class TSOClient extends SimpleChannelHandler {
    private Map<Long, List<CommitQueryCallback>> isCommittedCallbacks;
    
    private Committed committed = new Committed();
-   SharedAbortedSet aborted = new SharedAbortedSet();
+   private SharedAbortedSet aborted = new SharedAbortedSet();
    private long largestDeletedTimestamp;
    private long connectionTimestamp = 0;
    private boolean hasConnectionTimestamp = false;
@@ -386,8 +384,32 @@ public class TSOClient extends SimpleChannelHandler {
       }
    }
 
+   /**
+    * Wraps a CreateCallback so we get notified when a new transaction is started. Then forwards the notification to
+    * the user.
+    *
+    */
+   private class NotifyStart implements CreateCallback {
+      private CreateCallback cb;
+
+      public NotifyStart(CreateCallback cb) {
+         this.cb = cb;
+      }
+
+      @Override
+      public void complete(long startTimestamp) {
+         aborted.transactionStarted(startTimestamp);
+         cb.complete(startTimestamp);
+      }
+
+      @Override
+      public void error(Exception e) {
+         cb.error(e);
+      }
+   }
+
    public void getNewTimestamp(CreateCallback cb) throws IOException {
-      withConnection(new NewTimestampOp(cb));
+      withConnection(new NewTimestampOp(new NotifyStart(cb)));
    }
    
    public void isCommitted(long startTimestamp, long pendingWriteTimestamp, CommitQueryCallback cb)
@@ -397,10 +419,12 @@ public class TSOClient extends SimpleChannelHandler {
 
    public void abort(long transactionId) throws IOException {
        withConnection(new AbortOp(transactionId));
+       aborted.transactionFinished(transactionId);
    }
 
    public void commit(long transactionId, RowKey[] rows, CommitCallback cb) throws IOException {
       withConnection(new CommitOp(transactionId, rows, cb));
+      aborted.transactionFinished(transactionId);
    }
 
    public void completeAbort(long transactionId, AbortCompleteCallback cb) throws IOException {
