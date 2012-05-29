@@ -75,7 +75,7 @@ public class TransactionManager {
          throw new TransactionException("Error retrieving timestamp", cb.getException());
       }
 
-      tsoclient.aborted.aTxnStarted(cb.getStartTimestamp());
+      tsoclient.aborted.transactionStarted(cb.getStartTimestamp());
       return new TransactionState(cb.getStartTimestamp(), tsoclient);
    }
 
@@ -110,7 +110,7 @@ public class TransactionManager {
                    " Success: " + (cb.getResult() == TSOClient.Result.OK));
       }
 
-      tsoclient.aborted.aTxnFinished(transactionState.getStartTimestamp());
+      tsoclient.aborted.transactionFinished(transactionState.getStartTimestamp());
 
       if (cb.getResult() == TSOClient.Result.ABORTED) {
          cleanup(transactionState);
@@ -139,7 +139,7 @@ public class TransactionManager {
          LOG.trace("doneAbort " + transactionState.getStartTimestamp());
       }
 
-      tsoclient.aborted.aTxnFinished(transactionState.getStartTimestamp());
+      tsoclient.aborted.transactionFinished(transactionState.getStartTimestamp());
 
       // Make sure its commit timestamp is 0, so the cleanup does the right job
       transactionState.setCommitTimestamp(0);

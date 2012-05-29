@@ -16,50 +16,70 @@
 
 package com.yahoo.omid.client;
 
-import java.util.Set;
 import java.util.HashSet;
-import java.util.Queue;
-import java.util.NoSuchElementException;
-import java.util.LinkedList;
+import java.util.Set;
 
-/*
- * A set of aborted transactions that could be accessed by concurrent transactions
- * If a transactin Ta is in the aborted list at the time transaction Tr starts, it must stay there till Tr commits/aborts. This is necessary to avoid the corner cases that Tr reads a value that had been written by Ta but since Ta is not in aborted list anymore, Tr takes the value as committed. Refer to HotDep for furthur details.
- * The trick is to delay removal of aborts until the transactions that started before the remove invocation are finished.
+/**
+ * A set of aborted transactions that could be accessed by concurrent transactions.
+ *
+ * If a transactin Ta is in the aborted list at the time transaction Tr starts, it must stay there till Tr
+ * commits/aborts. This is necessary to avoid the corner cases that Tr reads a value that had been written by Ta but
+ * since Ta is not in aborted list anymore, Tr takes the value as committed. Refer to HotDep for furthur details.
+ * The trick is to delay removal of aborts until the transactions that started before the remove invocation are
+ * finished.
  */
 public class SharedAbortedSet {
-    protected Set<Long> aborted = new HashSet<Long>(1000);
-    protected DeleteEfficientQueue<Txn> queuedFullAborted = new DeleteEfficientQueue();
+    private Set<Long> aborted = new HashSet<Long>(1000);
+    private DeleteEfficientQueue<Txn> queuedFullAborted = new DeleteEfficientQueue<Txn>();
 
     public synchronized void clear() {
         aborted.clear();
         queuedFullAborted.clear();
     }
 
-    public synchronized boolean contains(Long txn) {
+    public synchronized boolean contains(long txn) {
         return aborted.contains(txn);
     }
 
-    //remove a txn from the aborted set
-    public synchronized void remove(Long txn) {
-        if (queuedFullAborted.peek() == null)//no transaction started
+    /**
+     * Remove a txn from the aborted set
+     *
+     * @param txn Id of the cleaned up transaction
+     */
+    public synchronized void remove(long txn) {
+        if (queuedFullAborted.peek() == null) {
+            //no transaction started
             aborted.remove(txn);
-        else //delay the removal of the aborted txn
+        } else {
+            //delay the removal of the aborted txn
             queuedFullAborted.offer(new FullAbortedTxn(txn));
+        }
     }
 
-    //add a txn to the aborted set
-    public synchronized void add(Long txn) {
+    /**
+     * Add a txn to the aborted set
+     *
+     * @param txn Id of the aborted transaction
+     */
+    public synchronized void add(long txn) {
         aborted.add(txn);
     }
 
-    public synchronized void aTxnStarted(Long txn) {
+    /**
+     * Notify the start of a transaction.
+     * @param txn Started transaction
+     */
+    public synchronized void transactionStarted(long txn) {
         queuedFullAborted.offer(new StartedTxn(txn));
     }
 
-    public synchronized void aTxnFinished(Long txn) {
+    /**
+     * Nofify the end of a transaction and apply the queued clean ups.
+     * @param txn Finished transaction
+     */
+    public synchronized void transactionFinished(long txn) {
         queuedFullAborted.delete(new StartedTxn(txn));
-        //after a transaction is finished, apply all full aborts that were receieved after the transaction start and do not have to be delayed due to other started txns
+        // After a transaction is finished, apply all full aborts that were receieved after the transaction start
         Txn top = queuedFullAborted.peek();
         while (top instanceof FullAbortedTxn) {
             aborted.remove(top.Ts);
@@ -68,9 +88,9 @@ public class SharedAbortedSet {
         }
     }
 
-    byte StartedTxnType = 0;
-    byte FullAbortedTxnType = 1;
-    abstract class Txn {
+    private static final byte StartedTxnType = 0;
+    private static final byte FullAbortedTxnType = 1;
+    private static abstract class Txn {
         public Long Ts;
         protected byte type;
         public Txn(Long Ts) {
@@ -95,14 +115,14 @@ public class SharedAbortedSet {
         }
     }
 
-    class StartedTxn extends Txn {
+    private static class StartedTxn extends Txn {
         public StartedTxn(Long Ts) {
             super(Ts);
             type = StartedTxnType;
         }
     }
 
-    class FullAbortedTxn extends Txn {
+    private static class FullAbortedTxn extends Txn {
         public FullAbortedTxn(Long Ts) {
             super(Ts);
             type = FullAbortedTxnType;
