@@ -19,6 +19,7 @@ package com.yahoo.omid.tso.persistence;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -43,7 +44,6 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.yahoo.omid.tso.TSOServerConfig;
 import com.yahoo.omid.tso.TSOState;
@@ -233,11 +233,12 @@ public class BookKeeperStateBuilder extends StateBuilder {
                 LOG.error("Error while reading ledger entries." + BKException.getMessage(rc));
                 context.setState(null);
             } else {
-                while(entries.hasMoreElements()){
-                    LedgerEntry le = entries.nextElement();
+                List<LedgerEntry> entryList = Collections.list(entries);
+                for (LedgerEntry le : Lists.reverse(entryList)) {
                     ByteBuffer entry = ByteBuffer.wrap(le.getEntry());
 
-                    context.readEntries.add(entry);
+                    // Add entries to readEntries for later execution
+                    context.readEntries.add(entry.duplicate());
                     lp.scan(entry);
 
                     if(lp.finishedScan() || le.getEntryId() == 0){

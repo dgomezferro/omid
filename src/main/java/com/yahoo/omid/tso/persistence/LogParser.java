@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LogParser {
-    private static final Logger LOG = LoggerFactory.getLogger(LoggerProtocol.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LogParser.class);
 
     LogParser() {
     }
