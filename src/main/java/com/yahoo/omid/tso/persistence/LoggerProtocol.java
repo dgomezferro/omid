@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class LoggerProtocol extends TSOState{
+    @SuppressWarnings("unused")
     private static final Log LOG = LogFactory.getLog(LoggerProtocol.class);
     
     /*
@@ -37,7 +38,97 @@ public class LoggerProtocol extends TSOState{
     public final static byte FULLABORT = (byte) -5;
     public final static byte LOGSTART = (byte) -6;
     public final static byte SNAPSHOT = (byte) -7;
-    
+
+    private boolean commits;
+    private boolean oracle;
+    private boolean aborts;
+    private boolean consumed;
+    private boolean hasSnapshot;
+
+    private LogParser parser = new LogParser();
+
+    private LogExecutor scanner = new LogExecutor() {
+        private long loggedLargestDeletedTimestamp;
+        private int snapshot = -1;
+
+        @Override
+        public void timestampOracle(long timestamp) {
+            oracle = true;
+        }
+
+        @Override
+        public void snapshot(int snapshot) {
+            if (snapshot > this.snapshot) {
+                this.snapshot = snapshot;
+                hasSnapshot = true;
+            }
+            if (hasSnapshot && snapshot < snapshot) {
+                aborts = true;
+            }
+        }
+
+        @Override
+        public void logStart() {
+            consumed = true;
+        }
+
+        @Override
+        public void largestDeletedTimestamp(long timestamp) {
+            loggedLargestDeletedTimestamp = Math.max(timestamp, loggedLargestDeletedTimestamp);
+        }
+
+        @Override
+        public void commit(long startTimestamp, long commitTimestamp) {
+            if (commitTimestamp < loggedLargestDeletedTimestamp) {
+                commits = true;
+            }
+        }
+
+        @Override
+        public void fullAbort(long timestamp) {
+        }
+
+        @Override
+        public void abort(long timestamp) {
+        }
+    };
+
+    private LogExecutor executor = new LogExecutor() {
+
+        @Override
+        public void timestampOracle(long timestamp) {
+            getSO().initialize(timestamp);
+            initialize();
+        }
+
+        @Override
+        public void largestDeletedTimestamp(long timestamp) {
+            processLargestDeletedTimestamp(timestamp);
+        }
+
+        @Override
+        public void fullAbort(long timestamp) {
+            processFullAbort(timestamp);
+        }
+
+        @Override
+        public void commit(long startTimestamp, long commitTimestamp) {
+            processCommit(startTimestamp, commitTimestamp);
+        }
+
+        @Override
+        public void abort(long timestamp) {
+            processAbort(timestamp);
+        }
+
+        @Override
+        public void snapshot(int snapshot) {
+        }
+
+        @Override
+        public void logStart() {
+        }
+    };
     
     /**
      * Logger protocol constructor. Currently it only constructs the
@@ -49,81 +140,30 @@ public class LoggerProtocol extends TSOState{
     LoggerProtocol(TimestampOracle timestampOracle){
         super(timestampOracle);
     }
-    
-    private boolean commits;
-    private boolean oracle;
-    private boolean aborts;
-    private boolean consumed;
-    private boolean hasSnapshot;
-    private int snapshot = -1;
 
     /**
      * Execute a logged entry (several logged ops)
      * @param bb Serialized operations
      */
     void execute(ByteBuffer bb){
-        boolean done = !bb.hasRemaining();
-        while(!done){
-            byte op = bb.get();
-            long timestamp, startTimestamp, commitTimestamp;
-            if(LOG.isTraceEnabled()){
-                LOG.trace("Operation: " + op);
-            }
-            switch(op){
-            case TIMESTAMPORACLE:
-                timestamp = bb.getLong();
-                this.getSO().initialize(timestamp);
-                this.initialize();
-                oracle = true;
-                break;
-            case COMMIT:
-                startTimestamp = bb.getLong();
-                commitTimestamp = bb.getLong();
-                processCommit(startTimestamp, commitTimestamp);
-                if (commitTimestamp < largestDeletedTimestamp) {
-                   commits = true;
-                }
-                break;
-            case LARGESTDELETEDTIMESTAMP:
-                timestamp = bb.getLong();
-                processLargestDeletedTimestamp(timestamp);
-                
-                break;
-            case ABORT:
-                timestamp = bb.getLong();
-                processAbort(timestamp);
-                
-                break;
-            case FULLABORT:
-                timestamp = bb.getLong();
-                processFullAbort(timestamp);
-                
-                break;
-            case LOGSTART:
-                consumed = true;
-                break;
-            case SNAPSHOT:
-                int snapshot = (int) bb.getLong();
-                if (snapshot > this.snapshot) {
-                   this.snapshot = snapshot;
-                   this.hasSnapshot = true;
-                }
-                if (hasSnapshot && snapshot < this.snapshot) {
-                   this.aborts = true;
-                }
-                break;
-            }
-            if(bb.remaining() == 0) done = true;
-        }
+        parser.parse(bb, executor);
     }
 
     /**
-     * Checks whether all the required information has been recovered
+     * Read a logged entry scanning for all information needed to reconstruct the state
+     * @param bb Serialized operations
+     */
+    void scan(ByteBuffer bb){
+        parser.parse(bb, scanner);
+    }
+
+    /**
+     * Checks whether all the required information has been read
      * from the log.
      * 
-     * @return true if the recovery has finished
+     * @return true if the scanning has finished
      */
-    boolean finishedRecovery() {
+    boolean finishedScan() {
         return (oracle && commits && aborts) || consumed;        
     }
     

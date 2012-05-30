@@ -18,7 +18,9 @@
 package com.yahoo.omid.tso.persistence;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -41,6 +43,8 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.yahoo.omid.tso.TSOServerConfig;
 import com.yahoo.omid.tso.TSOState;
 import com.yahoo.omid.tso.TimestampOracle;
@@ -110,6 +114,7 @@ public class BookKeeperStateBuilder extends StateBuilder {
     class Context {
         TSOState state = null;
         TSOServerConfig config = null;
+        List<ByteBuffer> readEntries = new ArrayList<ByteBuffer>();
         boolean ready = false;
         boolean hasState = false;
         boolean hasLogger = false;
@@ -223,19 +228,23 @@ public class BookKeeperStateBuilder extends StateBuilder {
     class LoggerExecutor implements ReadCallback {
         public void readComplete(int rc, LedgerHandle lh, Enumeration<LedgerEntry> entries, Object ctx){
             throttleReads.release();
+            Context context = ((Context) ctx);
             if(rc != BKException.Code.OK){
                 LOG.error("Error while reading ledger entries." + BKException.getMessage(rc));
-                ((BookKeeperStateBuilder.Context) ctx).setState(null);
+                context.setState(null);
             } else {
                 while(entries.hasMoreElements()){
                     LedgerEntry le = entries.nextElement();
-                    lp.execute(ByteBuffer.wrap(le.getEntry()));
+                    ByteBuffer entry = ByteBuffer.wrap(le.getEntry());
 
-                    if(lp.finishedRecovery() || le.getEntryId() == 0){
-                        ((BookKeeperStateBuilder.Context) ctx).setState(lp.getState());
+                    context.readEntries.add(entry);
+                    lp.scan(entry);
+
+                    if(lp.finishedScan() || le.getEntryId() == 0){
+                        context.setState(lp.getState());
                     }
                 }
-                ((BookKeeperStateBuilder.Context) ctx).decrementPending();
+                context.decrementPending();
             }
         }
     }
@@ -308,7 +317,14 @@ public class BookKeeperStateBuilder extends StateBuilder {
             LOG.error("Interrupted while waiting for state to build up.", e);
             ctx.setState(null);
         }
-        
+
+        if (ctx.isFinished()) {
+            // We have recovered enough info to reexecute all operations, now we do that
+            for (ByteBuffer bb : Lists.reverse(ctx.readEntries)) {
+                lp.execute(bb);
+            }
+        }
+
         return ctx.state;
     }
 
@@ -355,6 +371,7 @@ public class BookKeeperStateBuilder extends StateBuilder {
                                         "flavio was here".getBytes(), 
                                         new OpenCallback(){
             public void openComplete(int rc, LedgerHandle lh, Object ctx){
+                Context context = (Context) ctx;
                 if(LOG.isDebugEnabled()){
                     LOG.debug("Open complete, ledger id: " + lh.getId());
                 }
@@ -363,16 +380,21 @@ public class BookKeeperStateBuilder extends StateBuilder {
                     ((BookKeeperStateBuilder.Context) ctx).setState(null);
                 } else {
                     long counter = lh.getLastAddConfirmed();
-                    while(counter >= 0){
+                    while(counter >= 0) {
                         try {
-                           throttleReads.acquire();
+                            // Keep the number of parallel reads under a threshold
+                            throttleReads.acquire();
                         } catch (InterruptedException e) {
-                           LOG.error("Couldn't build state", e);
-                           ((Context) ctx).abort();
-                           break;
+                            LOG.error("Couldn't build state", e);
+                            context.abort();
+                            break;
                         }
-                        if (((Context) ctx).isReady()) break;
-                        ((Context) ctx).incrementPending();
+
+                        if (context.isReady()) {
+                            // Stop reading from BookKeeper
+                            break;
+                        }
+                        context.incrementPending();
                         long nextBatch = Math.max(counter - BKREADBATCHSIZE + 1, 0);
                         lh.asyncReadEntries(nextBatch, counter, new LoggerExecutor(), ctx);
                         counter -= BKREADBATCHSIZE;
