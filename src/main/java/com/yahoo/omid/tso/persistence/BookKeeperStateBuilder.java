@@ -72,7 +72,9 @@ public class BookKeeperStateBuilder extends StateBuilder {
         TSOState returnValue;
         if(!config.isRecoveryEnabled()){
             LOG.warn("Logger is disabled");
-            returnValue = new TSOState(new TimestampOracle());
+            TimestampOracle to = new TimestampOracle();
+            to.initialize(config.getStartTimestamp());
+            returnValue = new TSOState(to);
             returnValue.initialize();
         } else {
             BookKeeperStateBuilder builder = new BookKeeperStateBuilder(config);
@@ -99,6 +101,7 @@ public class BookKeeperStateBuilder extends StateBuilder {
     
     BookKeeperStateBuilder(TSOServerConfig config) {
         this.timestampOracle = new TimestampOracle();
+        this.timestampOracle.initialize(config.getStartTimestamp());
         this.config = config;
         this.throttleReads = new Semaphore(PARALLEL_READS);
     }

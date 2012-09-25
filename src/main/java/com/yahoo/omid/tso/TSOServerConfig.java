@@ -63,6 +63,9 @@ public class TSOServerConfig {
 
     @Parameter(names = "-quorum", description = "WAL quorum size")
     private int quorum;
+
+    @Parameter(names = "-ts", description = "Initial timestamp. Anything older is assumed to be committed.")
+    private long startTimestamp;
     
     TSOServerConfig(){
         this.port = Integer.parseInt(System.getProperty("PORT", "1234"));
@@ -104,5 +107,9 @@ public class TSOServerConfig {
     
     public int getQuorumSize(){
         return quorum;
+    }
+
+    public long getStartTimestamp() {
+        return startTimestamp;
     }
 }
