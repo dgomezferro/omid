@@ -28,22 +28,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An IOError exception signals that an error occurred communicating
- * to the Hbase master or an Hbase region server.  Also used to return
- * more general Hbase error conditions.
+ * A TIOError exception signals that an error occurred communicating
+ * to the HBase master or a HBase region server. Also used to return
+ * more general HBase error conditions.
  */
-public class IOError extends Exception implements org.apache.thrift.TBase<IOError, IOError._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("IOError");
+public class TIOError extends Exception implements org.apache.thrift.TBase<TIOError, TIOError._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TIOError");
 
   private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short)1);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new IOErrorStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new IOErrorTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TIOErrorStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TIOErrorTupleSchemeFactory());
   }
 
-  public String message; // required
+  public String message; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -104,36 +104,30 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
   }
 
   // isset id assignments
+  private _Fields optionals[] = {_Fields.MESSAGE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(IOError.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TIOError.class, metaDataMap);
   }
 
-  public IOError() {
-  }
-
-  public IOError(
-    String message)
-  {
-    this();
-    this.message = message;
+  public TIOError() {
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public IOError(IOError other) {
+  public TIOError(TIOError other) {
     if (other.isSetMessage()) {
       this.message = other.message;
     }
   }
 
-  public IOError deepCopy() {
-    return new IOError(this);
+  public TIOError deepCopy() {
+    return new TIOError(this);
   }
 
   @Override
@@ -145,7 +139,7 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
     return this.message;
   }
 
-  public IOError setMessage(String message) {
+  public TIOError setMessage(String message) {
     this.message = message;
     return this;
   }
@@ -204,12 +198,12 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof IOError)
-      return this.equals((IOError)that);
+    if (that instanceof TIOError)
+      return this.equals((TIOError)that);
     return false;
   }
 
-  public boolean equals(IOError that) {
+  public boolean equals(TIOError that) {
     if (that == null)
       return false;
 
@@ -230,13 +224,13 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
     return 0;
   }
 
-  public int compareTo(IOError other) {
+  public int compareTo(TIOError other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    IOError typedOther = (IOError)other;
+    TIOError typedOther = (TIOError)other;
 
     lastComparison = Boolean.valueOf(isSetMessage()).compareTo(typedOther.isSetMessage());
     if (lastComparison != 0) {
@@ -265,16 +259,18 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("IOError(");
+    StringBuilder sb = new StringBuilder("TIOError(");
     boolean first = true;
 
-    sb.append("message:");
-    if (this.message == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.message);
+    if (isSetMessage()) {
+      sb.append("message:");
+      if (this.message == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.message);
+      }
+      first = false;
     }
-    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -299,15 +295,15 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
     }
   }
 
-  private static class IOErrorStandardSchemeFactory implements SchemeFactory {
-    public IOErrorStandardScheme getScheme() {
-      return new IOErrorStandardScheme();
+  private static class TIOErrorStandardSchemeFactory implements SchemeFactory {
+    public TIOErrorStandardScheme getScheme() {
+      return new TIOErrorStandardScheme();
     }
   }
 
-  private static class IOErrorStandardScheme extends StandardScheme<IOError> {
+  private static class TIOErrorStandardScheme extends StandardScheme<TIOError> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, IOError struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TIOError struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -336,14 +332,16 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, IOError struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TIOError struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
       if (struct.message != null) {
-        oprot.writeFieldBegin(MESSAGE_FIELD_DESC);
-        oprot.writeString(struct.message);
-        oprot.writeFieldEnd();
+        if (struct.isSetMessage()) {
+          oprot.writeFieldBegin(MESSAGE_FIELD_DESC);
+          oprot.writeString(struct.message);
+          oprot.writeFieldEnd();
+        }
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -351,16 +349,16 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
 
   }
 
-  private static class IOErrorTupleSchemeFactory implements SchemeFactory {
-    public IOErrorTupleScheme getScheme() {
-      return new IOErrorTupleScheme();
+  private static class TIOErrorTupleSchemeFactory implements SchemeFactory {
+    public TIOErrorTupleScheme getScheme() {
+      return new TIOErrorTupleScheme();
     }
   }
 
-  private static class IOErrorTupleScheme extends TupleScheme<IOError> {
+  private static class TIOErrorTupleScheme extends TupleScheme<TIOError> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, IOError struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TIOError struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetMessage()) {
@@ -373,7 +371,7 @@ public class IOError extends Exception implements org.apache.thrift.TBase<IOErro
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, IOError struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TIOError struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(1);
       if (incoming.get(0)) {

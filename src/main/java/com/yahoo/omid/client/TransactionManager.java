@@ -44,7 +44,7 @@ public class TransactionManager {
    private Configuration conf;
    private HashMap<byte[], HTable> tableCache;
 
-   public TransactionManager(Configuration conf) throws TransactionException, IOException {
+   public TransactionManager(Configuration conf) throws IOException {
       this.conf = conf;
       synchronized (lock) {
          if (tsoclient == null) {
@@ -178,4 +178,12 @@ public class TransactionManager {
                transactionState.getStartTimestamp(), ioe);
       }
    }
+
+    public TransactionState createTransactionState(long id, List<RowKeyFamily> rows) {
+        TransactionState ts = new TransactionState(id, tsoclient);
+        for (RowKeyFamily rkf : rows) {
+            ts.addRow(rkf);
+        }
+        return ts;
+    }
 }

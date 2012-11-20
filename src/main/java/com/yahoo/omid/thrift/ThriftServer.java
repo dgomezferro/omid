@@ -1,213 +1,228 @@
 package com.yahoo.omid.thrift;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.thrift.TException;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.server.THsHaServer;
+import org.apache.thrift.server.TNonblockingServer;
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TNonblockingServerSocket;
+import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.transport.TTransportFactory;
 
-import com.yahoo.omid.thrift.generated.AlreadyExists;
-import com.yahoo.omid.thrift.generated.BatchMutation;
-import com.yahoo.omid.thrift.generated.ColumnDescriptor;
-import com.yahoo.omid.thrift.generated.IOError;
-import com.yahoo.omid.thrift.generated.IllegalArgument;
-import com.yahoo.omid.thrift.generated.Mutation;
-import com.yahoo.omid.thrift.generated.Omid;
-import com.yahoo.omid.thrift.generated.TCell;
-import com.yahoo.omid.thrift.generated.TRegionInfo;
-import com.yahoo.omid.thrift.generated.TRowResult;
-import com.yahoo.omid.thrift.generated.TScan;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.yahoo.omid.thrift.generated.TOmidService;
 
-public class ThriftServer implements Omid.Iface {
-    
-    HBaseAdmin hbaseAdmin;
+/**
+ * ThriftServer - this class starts up a Thrift server which implements the Omid API specified in the
+ * Omid.thrift IDL file.
+ */
+@InterfaceAudience.Private
+public class ThriftServer {
+  private static final Log log = LogFactory.getLog(ThriftServer.class);
 
-    @Override
-    public void enableTable(ByteBuffer tableName) throws IOError, TException {
-        try {
-            hbaseAdmin.enableTable(tableName.array());
-        } catch (IOException e) {
-            throw new IOError(e.getLocalizedMessage());
-        }
+  public static final String DEFAULT_LISTEN_PORT = "9090";
+
+  public ThriftServer() {
+  }
+
+  private static void printUsage() {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp("Thrift", null, getOptions(),
+        "To start the Thrift server run 'bin/hbase-daemon.sh start thrift2'\n" +
+            "To shutdown the thrift server run 'bin/hbase-daemon.sh stop thrift2' or" +
+            " send a kill signal to the thrift server pid",
+        true);
+  }
+
+  private static Options getOptions() {
+    Options options = new Options();
+    options.addOption("b", "bind", true,
+        "Address to bind the Thrift server to. [default: 0.0.0.0]");
+    options.addOption("p", "port", true, "Port to bind to [default: " + DEFAULT_LISTEN_PORT + "]");
+    options.addOption("f", "framed", false, "Use framed transport");
+    options.addOption("c", "compact", false, "Use the compact protocol");
+    options.addOption("h", "help", false, "Print help information");
+
+    OptionGroup servers = new OptionGroup();
+    servers.addOption(
+        new Option("nonblocking", false, "Use the TNonblockingServer. This implies the framed transport."));
+    servers.addOption(new Option("hsha", false, "Use the THsHaServer. This implies the framed transport."));
+    servers.addOption(new Option("threadpool", false, "Use the TThreadPoolServer. This is the default."));
+    options.addOptionGroup(servers);
+    return options;
+  }
+
+  private static CommandLine parseArguments(Options options, String[] args) throws ParseException {
+    CommandLineParser parser = new PosixParser();
+    return parser.parse(options, args);
+  }
+
+  private static TProtocolFactory getTProtocolFactory(boolean isCompact) {
+    if (isCompact) {
+      log.debug("Using compact protocol");
+      return new TCompactProtocol.Factory();
+    } else {
+      log.debug("Using binary protocol");
+      return new TBinaryProtocol.Factory();
     }
+  }
 
-    @Override
-    public void disableTable(ByteBuffer tableName) throws IOError, TException {
-        try {
-            hbaseAdmin.disableTable(tableName.array());
-        } catch (IOException e) {
-            throw new IOError(e.getLocalizedMessage());
-        }
+  private static TTransportFactory getTTransportFactory(boolean framed) {
+    if (framed) {
+      log.debug("Using framed transport");
+      return new TFramedTransport.Factory();
+    } else {
+      return new TTransportFactory();
     }
+  }
 
-    @Override
-    public boolean isTableEnabled(ByteBuffer tableName) throws IOError, TException {
-        try {
-            return hbaseAdmin.isTableEnabled(tableName.array());
-        } catch (IOException e) {
-            throw new IOError(e.getLocalizedMessage());
-        }
+  /*
+   * If bindValue is null, we don't bind. 
+   */
+  private static InetSocketAddress bindToPort(String bindValue, int listenPort)
+      throws UnknownHostException {
+    try {
+      if (bindValue == null) {
+        return new InetSocketAddress(listenPort);
+      } else {
+        return new InetSocketAddress(InetAddress.getByName(bindValue), listenPort);
+      }
+    } catch (UnknownHostException e) {
+      throw new RuntimeException("Could not bind to provided ip address", e);
     }
+  }
 
-    @Override
-    public void compact(ByteBuffer tableNameOrRegionName) throws IOError, TException {
-        try {
-            hbaseAdmin.compact(tableNameOrRegionName.array());
-        } catch (Exception e) {
-            throw new IOError(e.getLocalizedMessage());
-        }
+  private static TServer getTNonBlockingServer(TProtocolFactory protocolFactory, TOmidService.Processor processor,
+      TTransportFactory transportFactory, InetSocketAddress inetSocketAddress) throws TTransportException {
+    TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(inetSocketAddress);
+    log.info("starting HBase Nonblocking Thrift server on " + inetSocketAddress.toString());
+    TNonblockingServer.Args serverArgs = new TNonblockingServer.Args(serverTransport);
+    serverArgs.processor(processor);
+    serverArgs.transportFactory(transportFactory);
+    serverArgs.protocolFactory(protocolFactory);
+    return new TNonblockingServer(serverArgs);
+  }
+
+  private static TServer getTHsHaServer(TProtocolFactory protocolFactory,
+          TOmidService.Processor processor, TTransportFactory transportFactory,
+      InetSocketAddress inetSocketAddress)
+      throws TTransportException {
+    TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(inetSocketAddress);
+    log.info("starting HBase HsHA Thrift server on " + inetSocketAddress.toString());
+    THsHaServer.Args serverArgs = new THsHaServer.Args(serverTransport);
+    ExecutorService executorService = createExecutor(
+        serverArgs.getWorkerThreads());
+    serverArgs.executorService(executorService);
+    serverArgs.processor(processor);
+    serverArgs.transportFactory(transportFactory);
+    serverArgs.protocolFactory(protocolFactory);
+    return new THsHaServer(serverArgs);
+  }
+
+  private static ExecutorService createExecutor(
+      int workerThreads) {
+    ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
+    tfb.setDaemon(true);
+    tfb.setNameFormat("thrift2-worker-%d");
+    return new ThreadPoolExecutor(workerThreads, workerThreads,
+            Long.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tfb.build());
+  }
+
+  private static TServer getTThreadPoolServer(TProtocolFactory protocolFactory, TOmidService.Processor processor,
+      TTransportFactory transportFactory, InetSocketAddress inetSocketAddress) throws TTransportException {
+    TServerTransport serverTransport = new TServerSocket(inetSocketAddress);
+    log.info("starting HBase ThreadPool Thrift server on " + inetSocketAddress.toString());
+    TThreadPoolServer.Args serverArgs = new TThreadPoolServer.Args(serverTransport);
+    serverArgs.processor(processor);
+    serverArgs.transportFactory(transportFactory);
+    serverArgs.protocolFactory(protocolFactory);
+    return new TThreadPoolServer(serverArgs);
+  }
+
+  /**
+   * Start up the Thrift2 server.
+   * 
+   * @param args
+   */
+  public static void main(String[] args) throws Exception {
+    TServer server = null;
+    Options options = getOptions();
+    try {
+      CommandLine cmd = parseArguments(options, args);
+
+      /**
+       * This is to please both bin/hbase and bin/hbase-daemon. hbase-daemon provides "start" and "stop" arguments hbase
+       * should print the help if no argument is provided
+       */
+      List<?> argList = cmd.getArgList();
+      if (cmd.hasOption("help") || !argList.contains("start") || argList.contains("stop")) {
+        printUsage();
+        System.exit(1);
+      }
+
+      // Get port to bind to
+      int listenPort = 0;
+      try {
+        listenPort = Integer.parseInt(cmd.getOptionValue("port", DEFAULT_LISTEN_PORT));
+      } catch (NumberFormatException e) {
+        throw new RuntimeException("Could not parse the value provided for the port option", e);
+      }
+
+      boolean nonblocking = cmd.hasOption("nonblocking");
+      boolean hsha = cmd.hasOption("hsha");
+
+      Configuration conf = HBaseConfiguration.create();
+
+      // Construct correct ProtocolFactory
+      TProtocolFactory protocolFactory = getTProtocolFactory(cmd.hasOption("compact"));
+      TOmidService.Iface handler =
+          ThriftServerHandler.newInstance(conf);
+          TOmidService.Processor<TOmidService.Iface> processor = new TOmidService.Processor<TOmidService.Iface>(handler);
+
+      boolean framed = cmd.hasOption("framed") || nonblocking || hsha;
+      TTransportFactory transportFactory = getTTransportFactory(framed);
+      InetSocketAddress inetSocketAddress = bindToPort(cmd.getOptionValue("bind"), listenPort);
+
+      if (nonblocking) {
+        server = getTNonBlockingServer(protocolFactory, processor, transportFactory, inetSocketAddress);
+      } else if (hsha) {
+        server = getTHsHaServer(protocolFactory, processor, transportFactory, inetSocketAddress);
+      } else {
+        server = getTThreadPoolServer(protocolFactory, processor, transportFactory, inetSocketAddress);
+      }
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      printUsage();
+      System.exit(1);
     }
-
-    @Override
-    public void majorCompact(ByteBuffer tableNameOrRegionName) throws IOError, TException {
-        try {
-            hbaseAdmin.majorCompact(tableNameOrRegionName.array());
-        } catch (Exception e) {
-            throw new IOError(e.getLocalizedMessage());
-        }
-    }
-
-    @Override
-    public List<ByteBuffer> getTableNames() throws IOError, TException {
-        return null;
-    }
-
-    @Override
-    public Map<ByteBuffer, ColumnDescriptor> getColumnDescriptors(ByteBuffer tableName) throws IOError, TException {
-        return null;
-    }
-
-    @Override
-    public List<TRegionInfo> getTableRegions(ByteBuffer tableName) throws IOError, TException {
-        return null;
-    }
-
-    @Override
-    public void createTable(ByteBuffer tableName, List<ColumnDescriptor> columnFamilies) throws IOError,
-            IllegalArgument, AlreadyExists, TException {
-        try {
-            hbaseAdmin.enableTable(tableName.array());
-        } catch (IOException e) {
-            throw new IOError(e.getLocalizedMessage());
-        }
-        
-    }
-
-    @Override
-    public void deleteTable(ByteBuffer tableName) throws IOError, TException {
-        try {
-            hbaseAdmin.enableTable(tableName.array());
-        } catch (IOException e) {
-            throw new IOError(e.getLocalizedMessage());
-        }
-    }
-
-    @Override
-    public List<TCell> get(ByteBuffer tableName, ByteBuffer row, ByteBuffer column, long transactionId) throws IOError,
-            TException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<TRowResult> getRow(ByteBuffer tableName, ByteBuffer row, long transactionId) throws IOError, TException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<TRowResult> getRowWithColumns(ByteBuffer tableName, ByteBuffer row, List<ByteBuffer> columns,
-            long transactionId) throws IOError, TException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<TRowResult> getRows(ByteBuffer tableName, List<ByteBuffer> rows, long transactionId) throws IOError,
-            TException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<TRowResult> getRowsWithColumns(ByteBuffer tableName, List<ByteBuffer> rows, List<ByteBuffer> columns,
-            long transactionId) throws IOError, TException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void mutateRow(ByteBuffer tableName, ByteBuffer row, List<Mutation> mutations, long transactionId)
-            throws IOError, IllegalArgument, TException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void mutateRows(ByteBuffer tableName, List<BatchMutation> rowBatches, long transactionId) throws IOError,
-            IllegalArgument, TException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void deleteAll(ByteBuffer tableName, ByteBuffer row, ByteBuffer column, long transactionId) throws IOError,
-            TException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void deleteAllRow(ByteBuffer tableName, ByteBuffer row, long transactionId) throws IOError, TException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public int scannerOpenWithScan(ByteBuffer tableName, TScan scan, long transactionId) throws IOError, TException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int scannerOpen(ByteBuffer tableName, ByteBuffer startRow, List<ByteBuffer> columns, long transactionId)
-            throws IOError, TException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int scannerOpenWithStop(ByteBuffer tableName, ByteBuffer startRow, ByteBuffer stopRow,
-            List<ByteBuffer> columns, long transactionId) throws IOError, TException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int scannerOpenWithPrefix(ByteBuffer tableName, ByteBuffer startAndPrefix, List<ByteBuffer> columns,
-            long transactionId) throws IOError, TException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public List<TRowResult> scannerGet(int id) throws IOError, IllegalArgument, TException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<TRowResult> scannerGetList(int id, int nbRows) throws IOError, IllegalArgument, TException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void scannerClose(int id) throws IOError, IllegalArgument, TException {
-        // TODO Auto-generated method stub
-        
-    }
-
+    server.serve();
+  }
 }

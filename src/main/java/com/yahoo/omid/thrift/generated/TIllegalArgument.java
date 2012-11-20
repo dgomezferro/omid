@@ -28,21 +28,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An IllegalArgument exception indicates an illegal or invalid
+ * A TIllegalArgument exception indicates an illegal or invalid
  * argument was passed into a procedure.
  */
-public class IllegalArgument extends Exception implements org.apache.thrift.TBase<IllegalArgument, IllegalArgument._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("IllegalArgument");
+public class TIllegalArgument extends Exception implements org.apache.thrift.TBase<TIllegalArgument, TIllegalArgument._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TIllegalArgument");
 
   private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short)1);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new IllegalArgumentStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new IllegalArgumentTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TIllegalArgumentStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TIllegalArgumentTupleSchemeFactory());
   }
 
-  public String message; // required
+  public String message; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -103,36 +103,30 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
   }
 
   // isset id assignments
+  private _Fields optionals[] = {_Fields.MESSAGE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(IllegalArgument.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TIllegalArgument.class, metaDataMap);
   }
 
-  public IllegalArgument() {
-  }
-
-  public IllegalArgument(
-    String message)
-  {
-    this();
-    this.message = message;
+  public TIllegalArgument() {
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public IllegalArgument(IllegalArgument other) {
+  public TIllegalArgument(TIllegalArgument other) {
     if (other.isSetMessage()) {
       this.message = other.message;
     }
   }
 
-  public IllegalArgument deepCopy() {
-    return new IllegalArgument(this);
+  public TIllegalArgument deepCopy() {
+    return new TIllegalArgument(this);
   }
 
   @Override
@@ -144,7 +138,7 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
     return this.message;
   }
 
-  public IllegalArgument setMessage(String message) {
+  public TIllegalArgument setMessage(String message) {
     this.message = message;
     return this;
   }
@@ -203,12 +197,12 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof IllegalArgument)
-      return this.equals((IllegalArgument)that);
+    if (that instanceof TIllegalArgument)
+      return this.equals((TIllegalArgument)that);
     return false;
   }
 
-  public boolean equals(IllegalArgument that) {
+  public boolean equals(TIllegalArgument that) {
     if (that == null)
       return false;
 
@@ -229,13 +223,13 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
     return 0;
   }
 
-  public int compareTo(IllegalArgument other) {
+  public int compareTo(TIllegalArgument other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    IllegalArgument typedOther = (IllegalArgument)other;
+    TIllegalArgument typedOther = (TIllegalArgument)other;
 
     lastComparison = Boolean.valueOf(isSetMessage()).compareTo(typedOther.isSetMessage());
     if (lastComparison != 0) {
@@ -264,16 +258,18 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("IllegalArgument(");
+    StringBuilder sb = new StringBuilder("TIllegalArgument(");
     boolean first = true;
 
-    sb.append("message:");
-    if (this.message == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.message);
+    if (isSetMessage()) {
+      sb.append("message:");
+      if (this.message == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.message);
+      }
+      first = false;
     }
-    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -298,15 +294,15 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
     }
   }
 
-  private static class IllegalArgumentStandardSchemeFactory implements SchemeFactory {
-    public IllegalArgumentStandardScheme getScheme() {
-      return new IllegalArgumentStandardScheme();
+  private static class TIllegalArgumentStandardSchemeFactory implements SchemeFactory {
+    public TIllegalArgumentStandardScheme getScheme() {
+      return new TIllegalArgumentStandardScheme();
     }
   }
 
-  private static class IllegalArgumentStandardScheme extends StandardScheme<IllegalArgument> {
+  private static class TIllegalArgumentStandardScheme extends StandardScheme<TIllegalArgument> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, IllegalArgument struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TIllegalArgument struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -335,14 +331,16 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, IllegalArgument struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TIllegalArgument struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
       if (struct.message != null) {
-        oprot.writeFieldBegin(MESSAGE_FIELD_DESC);
-        oprot.writeString(struct.message);
-        oprot.writeFieldEnd();
+        if (struct.isSetMessage()) {
+          oprot.writeFieldBegin(MESSAGE_FIELD_DESC);
+          oprot.writeString(struct.message);
+          oprot.writeFieldEnd();
+        }
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -350,16 +348,16 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
 
   }
 
-  private static class IllegalArgumentTupleSchemeFactory implements SchemeFactory {
-    public IllegalArgumentTupleScheme getScheme() {
-      return new IllegalArgumentTupleScheme();
+  private static class TIllegalArgumentTupleSchemeFactory implements SchemeFactory {
+    public TIllegalArgumentTupleScheme getScheme() {
+      return new TIllegalArgumentTupleScheme();
     }
   }
 
-  private static class IllegalArgumentTupleScheme extends TupleScheme<IllegalArgument> {
+  private static class TIllegalArgumentTupleScheme extends TupleScheme<TIllegalArgument> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, IllegalArgument struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TIllegalArgument struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetMessage()) {
@@ -372,7 +370,7 @@ public class IllegalArgument extends Exception implements org.apache.thrift.TBas
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, IllegalArgument struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TIllegalArgument struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(1);
       if (incoming.get(0)) {

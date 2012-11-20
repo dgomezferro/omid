@@ -28,27 +28,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A BatchMutation object is used to apply a number of Mutations to a single row.
+ * Used to perform Get operations on a single row.
+ * 
+ * The scope can be further narrowed down by specifying a list of
+ * columns or column families.
+ * 
+ * To get everything for a row, instantiate a Get object with just the row to get.
+ * To further define the scope of what to get you can add a timestamp or time range
+ * with an optional maximum number of versions to return.
+ * 
+ * If you specify a time range and a timestamp the range is ignored.
+ * Timestamps on TColumns are ignored.
+ * 
+ * TODO: Filter, Locks
  */
-public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, BatchMutation._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("BatchMutation");
+public class TGet implements org.apache.thrift.TBase<TGet, TGet._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TGet");
 
   private static final org.apache.thrift.protocol.TField ROW_FIELD_DESC = new org.apache.thrift.protocol.TField("row", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField MUTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("mutations", org.apache.thrift.protocol.TType.LIST, (short)2);
+  private static final org.apache.thrift.protocol.TField COLUMNS_FIELD_DESC = new org.apache.thrift.protocol.TField("columns", org.apache.thrift.protocol.TType.LIST, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new BatchMutationStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new BatchMutationTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TGetStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TGetTupleSchemeFactory());
   }
 
   public ByteBuffer row; // required
-  public List<Mutation> mutations; // required
+  public List<TColumn> columns; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     ROW((short)1, "row"),
-    MUTATIONS((short)2, "mutations");
+    COLUMNS((short)2, "columns");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -65,8 +77,8 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
       switch(fieldId) {
         case 1: // ROW
           return ROW;
-        case 2: // MUTATIONS
-          return MUTATIONS;
+        case 2: // COLUMNS
+          return COLUMNS;
         default:
           return null;
       }
@@ -107,54 +119,54 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
   }
 
   // isset id assignments
+  private _Fields optionals[] = {_Fields.COLUMNS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.ROW, new org.apache.thrift.meta_data.FieldMetaData("row", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , "Text")));
-    tmpMap.put(_Fields.MUTATIONS, new org.apache.thrift.meta_data.FieldMetaData("mutations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.ROW, new org.apache.thrift.meta_data.FieldMetaData("row", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
+    tmpMap.put(_Fields.COLUMNS, new org.apache.thrift.meta_data.FieldMetaData("columns", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Mutation.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TColumn.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(BatchMutation.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TGet.class, metaDataMap);
   }
 
-  public BatchMutation() {
+  public TGet() {
   }
 
-  public BatchMutation(
-    ByteBuffer row,
-    List<Mutation> mutations)
+  public TGet(
+    ByteBuffer row)
   {
     this();
     this.row = row;
-    this.mutations = mutations;
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public BatchMutation(BatchMutation other) {
+  public TGet(TGet other) {
     if (other.isSetRow()) {
-      this.row = other.row;
+      this.row = org.apache.thrift.TBaseHelper.copyBinary(other.row);
+;
     }
-    if (other.isSetMutations()) {
-      List<Mutation> __this__mutations = new ArrayList<Mutation>();
-      for (Mutation other_element : other.mutations) {
-        __this__mutations.add(new Mutation(other_element));
+    if (other.isSetColumns()) {
+      List<TColumn> __this__columns = new ArrayList<TColumn>();
+      for (TColumn other_element : other.columns) {
+        __this__columns.add(new TColumn(other_element));
       }
-      this.mutations = __this__mutations;
+      this.columns = __this__columns;
     }
   }
 
-  public BatchMutation deepCopy() {
-    return new BatchMutation(this);
+  public TGet deepCopy() {
+    return new TGet(this);
   }
 
   @Override
   public void clear() {
     this.row = null;
-    this.mutations = null;
+    this.columns = null;
   }
 
   public byte[] getRow() {
@@ -166,12 +178,12 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
     return row;
   }
 
-  public BatchMutation setRow(byte[] row) {
+  public TGet setRow(byte[] row) {
     setRow(row == null ? (ByteBuffer)null : ByteBuffer.wrap(row));
     return this;
   }
 
-  public BatchMutation setRow(ByteBuffer row) {
+  public TGet setRow(ByteBuffer row) {
     this.row = row;
     return this;
   }
@@ -191,42 +203,42 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
     }
   }
 
-  public int getMutationsSize() {
-    return (this.mutations == null) ? 0 : this.mutations.size();
+  public int getColumnsSize() {
+    return (this.columns == null) ? 0 : this.columns.size();
   }
 
-  public java.util.Iterator<Mutation> getMutationsIterator() {
-    return (this.mutations == null) ? null : this.mutations.iterator();
+  public java.util.Iterator<TColumn> getColumnsIterator() {
+    return (this.columns == null) ? null : this.columns.iterator();
   }
 
-  public void addToMutations(Mutation elem) {
-    if (this.mutations == null) {
-      this.mutations = new ArrayList<Mutation>();
+  public void addToColumns(TColumn elem) {
+    if (this.columns == null) {
+      this.columns = new ArrayList<TColumn>();
     }
-    this.mutations.add(elem);
+    this.columns.add(elem);
   }
 
-  public List<Mutation> getMutations() {
-    return this.mutations;
+  public List<TColumn> getColumns() {
+    return this.columns;
   }
 
-  public BatchMutation setMutations(List<Mutation> mutations) {
-    this.mutations = mutations;
+  public TGet setColumns(List<TColumn> columns) {
+    this.columns = columns;
     return this;
   }
 
-  public void unsetMutations() {
-    this.mutations = null;
+  public void unsetColumns() {
+    this.columns = null;
   }
 
-  /** Returns true if field mutations is set (has been assigned a value) and false otherwise */
-  public boolean isSetMutations() {
-    return this.mutations != null;
+  /** Returns true if field columns is set (has been assigned a value) and false otherwise */
+  public boolean isSetColumns() {
+    return this.columns != null;
   }
 
-  public void setMutationsIsSet(boolean value) {
+  public void setColumnsIsSet(boolean value) {
     if (!value) {
-      this.mutations = null;
+      this.columns = null;
     }
   }
 
@@ -240,11 +252,11 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
       }
       break;
 
-    case MUTATIONS:
+    case COLUMNS:
       if (value == null) {
-        unsetMutations();
+        unsetColumns();
       } else {
-        setMutations((List<Mutation>)value);
+        setColumns((List<TColumn>)value);
       }
       break;
 
@@ -256,8 +268,8 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
     case ROW:
       return getRow();
 
-    case MUTATIONS:
-      return getMutations();
+    case COLUMNS:
+      return getColumns();
 
     }
     throw new IllegalStateException();
@@ -272,8 +284,8 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
     switch (field) {
     case ROW:
       return isSetRow();
-    case MUTATIONS:
-      return isSetMutations();
+    case COLUMNS:
+      return isSetColumns();
     }
     throw new IllegalStateException();
   }
@@ -282,12 +294,12 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof BatchMutation)
-      return this.equals((BatchMutation)that);
+    if (that instanceof TGet)
+      return this.equals((TGet)that);
     return false;
   }
 
-  public boolean equals(BatchMutation that) {
+  public boolean equals(TGet that) {
     if (that == null)
       return false;
 
@@ -300,12 +312,12 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
         return false;
     }
 
-    boolean this_present_mutations = true && this.isSetMutations();
-    boolean that_present_mutations = true && that.isSetMutations();
-    if (this_present_mutations || that_present_mutations) {
-      if (!(this_present_mutations && that_present_mutations))
+    boolean this_present_columns = true && this.isSetColumns();
+    boolean that_present_columns = true && that.isSetColumns();
+    if (this_present_columns || that_present_columns) {
+      if (!(this_present_columns && that_present_columns))
         return false;
-      if (!this.mutations.equals(that.mutations))
+      if (!this.columns.equals(that.columns))
         return false;
     }
 
@@ -317,13 +329,13 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
     return 0;
   }
 
-  public int compareTo(BatchMutation other) {
+  public int compareTo(TGet other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    BatchMutation typedOther = (BatchMutation)other;
+    TGet typedOther = (TGet)other;
 
     lastComparison = Boolean.valueOf(isSetRow()).compareTo(typedOther.isSetRow());
     if (lastComparison != 0) {
@@ -335,12 +347,12 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetMutations()).compareTo(typedOther.isSetMutations());
+    lastComparison = Boolean.valueOf(isSetColumns()).compareTo(typedOther.isSetColumns());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetMutations()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.mutations, typedOther.mutations);
+    if (isSetColumns()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.columns, typedOther.columns);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -362,30 +374,35 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("BatchMutation(");
+    StringBuilder sb = new StringBuilder("TGet(");
     boolean first = true;
 
     sb.append("row:");
     if (this.row == null) {
       sb.append("null");
     } else {
-      sb.append(this.row);
+      org.apache.thrift.TBaseHelper.toString(this.row, sb);
     }
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("mutations:");
-    if (this.mutations == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.mutations);
+    if (isSetColumns()) {
+      if (!first) sb.append(", ");
+      sb.append("columns:");
+      if (this.columns == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.columns);
+      }
+      first = false;
     }
-    first = false;
     sb.append(")");
     return sb.toString();
   }
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
+    if (row == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'row' was not present! Struct: " + toString());
+    }
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -404,15 +421,15 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
     }
   }
 
-  private static class BatchMutationStandardSchemeFactory implements SchemeFactory {
-    public BatchMutationStandardScheme getScheme() {
-      return new BatchMutationStandardScheme();
+  private static class TGetStandardSchemeFactory implements SchemeFactory {
+    public TGetStandardScheme getScheme() {
+      return new TGetStandardScheme();
     }
   }
 
-  private static class BatchMutationStandardScheme extends StandardScheme<BatchMutation> {
+  private static class TGetStandardScheme extends StandardScheme<TGet> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, BatchMutation struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TGet struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -430,21 +447,21 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // MUTATIONS
+          case 2: // COLUMNS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                struct.mutations = new ArrayList<Mutation>(_list8.size);
+                struct.columns = new ArrayList<TColumn>(_list8.size);
                 for (int _i9 = 0; _i9 < _list8.size; ++_i9)
                 {
-                  Mutation _elem10; // required
-                  _elem10 = new Mutation();
+                  TColumn _elem10; // required
+                  _elem10 = new TColumn();
                   _elem10.read(iprot);
-                  struct.mutations.add(_elem10);
+                  struct.columns.add(_elem10);
                 }
                 iprot.readListEnd();
               }
-              struct.setMutationsIsSet(true);
+              struct.setColumnsIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -460,7 +477,7 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, BatchMutation struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TGet struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -469,17 +486,19 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
         oprot.writeBinary(struct.row);
         oprot.writeFieldEnd();
       }
-      if (struct.mutations != null) {
-        oprot.writeFieldBegin(MUTATIONS_FIELD_DESC);
-        {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.mutations.size()));
-          for (Mutation _iter11 : struct.mutations)
+      if (struct.columns != null) {
+        if (struct.isSetColumns()) {
+          oprot.writeFieldBegin(COLUMNS_FIELD_DESC);
           {
-            _iter11.write(oprot);
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.columns.size()));
+            for (TColumn _iter11 : struct.columns)
+            {
+              _iter11.write(oprot);
+            }
+            oprot.writeListEnd();
           }
-          oprot.writeListEnd();
+          oprot.writeFieldEnd();
         }
-        oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -487,32 +506,27 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
 
   }
 
-  private static class BatchMutationTupleSchemeFactory implements SchemeFactory {
-    public BatchMutationTupleScheme getScheme() {
-      return new BatchMutationTupleScheme();
+  private static class TGetTupleSchemeFactory implements SchemeFactory {
+    public TGetTupleScheme getScheme() {
+      return new TGetTupleScheme();
     }
   }
 
-  private static class BatchMutationTupleScheme extends TupleScheme<BatchMutation> {
+  private static class TGetTupleScheme extends TupleScheme<TGet> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, BatchMutation struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TGet struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
+      oprot.writeBinary(struct.row);
       BitSet optionals = new BitSet();
-      if (struct.isSetRow()) {
+      if (struct.isSetColumns()) {
         optionals.set(0);
       }
-      if (struct.isSetMutations()) {
-        optionals.set(1);
-      }
-      oprot.writeBitSet(optionals, 2);
-      if (struct.isSetRow()) {
-        oprot.writeBinary(struct.row);
-      }
-      if (struct.isSetMutations()) {
+      oprot.writeBitSet(optionals, 1);
+      if (struct.isSetColumns()) {
         {
-          oprot.writeI32(struct.mutations.size());
-          for (Mutation _iter12 : struct.mutations)
+          oprot.writeI32(struct.columns.size());
+          for (TColumn _iter12 : struct.columns)
           {
             _iter12.write(oprot);
           }
@@ -521,26 +535,24 @@ public class BatchMutation implements org.apache.thrift.TBase<BatchMutation, Bat
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, BatchMutation struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TGet struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(2);
+      struct.row = iprot.readBinary();
+      struct.setRowIsSet(true);
+      BitSet incoming = iprot.readBitSet(1);
       if (incoming.get(0)) {
-        struct.row = iprot.readBinary();
-        struct.setRowIsSet(true);
-      }
-      if (incoming.get(1)) {
         {
           org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.mutations = new ArrayList<Mutation>(_list13.size);
+          struct.columns = new ArrayList<TColumn>(_list13.size);
           for (int _i14 = 0; _i14 < _list13.size; ++_i14)
           {
-            Mutation _elem15; // required
-            _elem15 = new Mutation();
+            TColumn _elem15; // required
+            _elem15 = new TColumn();
             _elem15.read(iprot);
-            struct.mutations.add(_elem15);
+            struct.columns.add(_elem15);
           }
         }
-        struct.setMutationsIsSet(true);
+        struct.setColumnsIsSet(true);
       }
     }
   }

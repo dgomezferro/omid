@@ -27,20 +27,20 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Transaction implements org.apache.thrift.TBase<Transaction, Transaction._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Transaction");
+public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTransaction._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TTransaction");
 
   private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField ROWS_FIELD_DESC = new org.apache.thrift.protocol.TField("rows", org.apache.thrift.protocol.TType.LIST, (short)2);
+  private static final org.apache.thrift.protocol.TField ROWS_FIELD_DESC = new org.apache.thrift.protocol.TField("rows", org.apache.thrift.protocol.TType.MAP, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new TransactionStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new TransactionTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TTransactionStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TTransactionTupleSchemeFactory());
   }
 
   public long id; // required
-  public List<ByteBuffer> rows; // optional
+  public Map<ByteBuffer,List<TPut>> rows; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -113,16 +113,18 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
     tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.ROWS, new org.apache.thrift.meta_data.FieldMetaData("rows", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING            , "Text"))));
+        new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING            , true), 
+            new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+                new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TPut.class)))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Transaction.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TTransaction.class, metaDataMap);
   }
 
-  public Transaction() {
+  public TTransaction() {
   }
 
-  public Transaction(
+  public TTransaction(
     long id)
   {
     this();
@@ -133,21 +135,33 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public Transaction(Transaction other) {
+  public TTransaction(TTransaction other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.id = other.id;
     if (other.isSetRows()) {
-      List<ByteBuffer> __this__rows = new ArrayList<ByteBuffer>();
-      for (ByteBuffer other_element : other.rows) {
-        __this__rows.add(other_element);
+      Map<ByteBuffer,List<TPut>> __this__rows = new HashMap<ByteBuffer,List<TPut>>();
+      for (Map.Entry<ByteBuffer, List<TPut>> other_element : other.rows.entrySet()) {
+
+        ByteBuffer other_element_key = other_element.getKey();
+        List<TPut> other_element_value = other_element.getValue();
+
+        ByteBuffer __this__rows_copy_key = org.apache.thrift.TBaseHelper.copyBinary(other_element_key);
+;
+
+        List<TPut> __this__rows_copy_value = new ArrayList<TPut>();
+        for (TPut other_element_value_element : other_element_value) {
+          __this__rows_copy_value.add(new TPut(other_element_value_element));
+        }
+
+        __this__rows.put(__this__rows_copy_key, __this__rows_copy_value);
       }
       this.rows = __this__rows;
     }
   }
 
-  public Transaction deepCopy() {
-    return new Transaction(this);
+  public TTransaction deepCopy() {
+    return new TTransaction(this);
   }
 
   @Override
@@ -161,7 +175,7 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
     return this.id;
   }
 
-  public Transaction setId(long id) {
+  public TTransaction setId(long id) {
     this.id = id;
     setIdIsSet(true);
     return this;
@@ -184,22 +198,18 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
     return (this.rows == null) ? 0 : this.rows.size();
   }
 
-  public java.util.Iterator<ByteBuffer> getRowsIterator() {
-    return (this.rows == null) ? null : this.rows.iterator();
-  }
-
-  public void addToRows(ByteBuffer elem) {
+  public void putToRows(ByteBuffer key, List<TPut> val) {
     if (this.rows == null) {
-      this.rows = new ArrayList<ByteBuffer>();
+      this.rows = new HashMap<ByteBuffer,List<TPut>>();
     }
-    this.rows.add(elem);
+    this.rows.put(key, val);
   }
 
-  public List<ByteBuffer> getRows() {
+  public Map<ByteBuffer,List<TPut>> getRows() {
     return this.rows;
   }
 
-  public Transaction setRows(List<ByteBuffer> rows) {
+  public TTransaction setRows(Map<ByteBuffer,List<TPut>> rows) {
     this.rows = rows;
     return this;
   }
@@ -233,7 +243,7 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
       if (value == null) {
         unsetRows();
       } else {
-        setRows((List<ByteBuffer>)value);
+        setRows((Map<ByteBuffer,List<TPut>>)value);
       }
       break;
 
@@ -271,12 +281,12 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof Transaction)
-      return this.equals((Transaction)that);
+    if (that instanceof TTransaction)
+      return this.equals((TTransaction)that);
     return false;
   }
 
-  public boolean equals(Transaction that) {
+  public boolean equals(TTransaction that) {
     if (that == null)
       return false;
 
@@ -306,13 +316,13 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
     return 0;
   }
 
-  public int compareTo(Transaction other) {
+  public int compareTo(TTransaction other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    Transaction typedOther = (Transaction)other;
+    TTransaction typedOther = (TTransaction)other;
 
     lastComparison = Boolean.valueOf(isSetId()).compareTo(typedOther.isSetId());
     if (lastComparison != 0) {
@@ -351,7 +361,7 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("Transaction(");
+    StringBuilder sb = new StringBuilder("TTransaction(");
     boolean first = true;
 
     sb.append("id:");
@@ -393,15 +403,15 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
     }
   }
 
-  private static class TransactionStandardSchemeFactory implements SchemeFactory {
-    public TransactionStandardScheme getScheme() {
-      return new TransactionStandardScheme();
+  private static class TTransactionStandardSchemeFactory implements SchemeFactory {
+    public TTransactionStandardScheme getScheme() {
+      return new TTransactionStandardScheme();
     }
   }
 
-  private static class TransactionStandardScheme extends StandardScheme<Transaction> {
+  private static class TTransactionStandardScheme extends StandardScheme<TTransaction> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, Transaction struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TTransaction struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -420,17 +430,30 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
             }
             break;
           case 2: // ROWS
-            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+            if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
-                struct.rows = new ArrayList<ByteBuffer>(_list0.size);
-                for (int _i1 = 0; _i1 < _list0.size; ++_i1)
+                org.apache.thrift.protocol.TMap _map24 = iprot.readMapBegin();
+                struct.rows = new HashMap<ByteBuffer,List<TPut>>(2*_map24.size);
+                for (int _i25 = 0; _i25 < _map24.size; ++_i25)
                 {
-                  ByteBuffer _elem2; // required
-                  _elem2 = iprot.readBinary();
-                  struct.rows.add(_elem2);
+                  ByteBuffer _key26; // required
+                  List<TPut> _val27; // required
+                  _key26 = iprot.readBinary();
+                  {
+                    org.apache.thrift.protocol.TList _list28 = iprot.readListBegin();
+                    _val27 = new ArrayList<TPut>(_list28.size);
+                    for (int _i29 = 0; _i29 < _list28.size; ++_i29)
+                    {
+                      TPut _elem30; // required
+                      _elem30 = new TPut();
+                      _elem30.read(iprot);
+                      _val27.add(_elem30);
+                    }
+                    iprot.readListEnd();
+                  }
+                  struct.rows.put(_key26, _val27);
                 }
-                iprot.readListEnd();
+                iprot.readMapEnd();
               }
               struct.setRowsIsSet(true);
             } else { 
@@ -448,7 +471,7 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, Transaction struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TTransaction struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -459,12 +482,20 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
         if (struct.isSetRows()) {
           oprot.writeFieldBegin(ROWS_FIELD_DESC);
           {
-            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.rows.size()));
-            for (ByteBuffer _iter3 : struct.rows)
+            oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, struct.rows.size()));
+            for (Map.Entry<ByteBuffer, List<TPut>> _iter31 : struct.rows.entrySet())
             {
-              oprot.writeBinary(_iter3);
+              oprot.writeBinary(_iter31.getKey());
+              {
+                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, _iter31.getValue().size()));
+                for (TPut _iter32 : _iter31.getValue())
+                {
+                  _iter32.write(oprot);
+                }
+                oprot.writeListEnd();
+              }
             }
-            oprot.writeListEnd();
+            oprot.writeMapEnd();
           }
           oprot.writeFieldEnd();
         }
@@ -475,16 +506,16 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
 
   }
 
-  private static class TransactionTupleSchemeFactory implements SchemeFactory {
-    public TransactionTupleScheme getScheme() {
-      return new TransactionTupleScheme();
+  private static class TTransactionTupleSchemeFactory implements SchemeFactory {
+    public TTransactionTupleScheme getScheme() {
+      return new TTransactionTupleScheme();
     }
   }
 
-  private static class TransactionTupleScheme extends TupleScheme<Transaction> {
+  private static class TTransactionTupleScheme extends TupleScheme<TTransaction> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, Transaction struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TTransaction struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetId()) {
@@ -500,16 +531,23 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
       if (struct.isSetRows()) {
         {
           oprot.writeI32(struct.rows.size());
-          for (ByteBuffer _iter4 : struct.rows)
+          for (Map.Entry<ByteBuffer, List<TPut>> _iter33 : struct.rows.entrySet())
           {
-            oprot.writeBinary(_iter4);
+            oprot.writeBinary(_iter33.getKey());
+            {
+              oprot.writeI32(_iter33.getValue().size());
+              for (TPut _iter34 : _iter33.getValue())
+              {
+                _iter34.write(oprot);
+              }
+            }
           }
         }
       }
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, Transaction struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TTransaction struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(2);
       if (incoming.get(0)) {
@@ -518,13 +556,25 @@ public class Transaction implements org.apache.thrift.TBase<Transaction, Transac
       }
       if (incoming.get(1)) {
         {
-          org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.rows = new ArrayList<ByteBuffer>(_list5.size);
-          for (int _i6 = 0; _i6 < _list5.size; ++_i6)
+          org.apache.thrift.protocol.TMap _map35 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
+          struct.rows = new HashMap<ByteBuffer,List<TPut>>(2*_map35.size);
+          for (int _i36 = 0; _i36 < _map35.size; ++_i36)
           {
-            ByteBuffer _elem7; // required
-            _elem7 = iprot.readBinary();
-            struct.rows.add(_elem7);
+            ByteBuffer _key37; // required
+            List<TPut> _val38; // required
+            _key37 = iprot.readBinary();
+            {
+              org.apache.thrift.protocol.TList _list39 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+              _val38 = new ArrayList<TPut>(_list39.size);
+              for (int _i40 = 0; _i40 < _list39.size; ++_i40)
+              {
+                TPut _elem41; // required
+                _elem41 = new TPut();
+                _elem41.read(iprot);
+                _val38.add(_elem41);
+              }
+            }
+            struct.rows.put(_key37, _val38);
           }
         }
         struct.setRowsIsSet(true);

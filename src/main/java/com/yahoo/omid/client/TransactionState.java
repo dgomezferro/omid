@@ -39,11 +39,11 @@ public class TransactionState {
       this.tsoclient = client;
    }
 
-   long getStartTimestamp() {
+   public long getStartTimestamp() {
       return startTimestamp;
    }
    
-   long getCommitTimestamp() {
+   public long getCommitTimestamp() {
       return commitTimestamp;
    }
 
@@ -51,7 +51,7 @@ public class TransactionState {
       this.commitTimestamp = commitTimestamp;
    }
 
-   RowKeyFamily[] getRows() {
+   public RowKeyFamily[] getRows() {
       return rows.toArray(new RowKeyFamily[0]);
    }
 

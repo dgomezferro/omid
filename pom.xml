@@ -84,6 +84,7 @@
 						<phase>generate-sources</phase>
 						<configuration>
 							<tasks>
+								<delete dir="target/generated-sources" failonerror="false" />
 								<mkdir dir="target/generated-sources" />
 								<exec executable="${thrift.executable}">
 									<arg value="--gen" />

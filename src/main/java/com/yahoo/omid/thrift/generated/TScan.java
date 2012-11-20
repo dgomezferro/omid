@@ -28,17 +28,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A Scan object is used to specify scanner parameters when opening a scanner.
+ * Any timestamps in the columns are ignored, use timeRange to select by timestamp.
+ * Max versions defaults to 1.
  */
 public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TScan");
 
   private static final org.apache.thrift.protocol.TField START_ROW_FIELD_DESC = new org.apache.thrift.protocol.TField("startRow", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField STOP_ROW_FIELD_DESC = new org.apache.thrift.protocol.TField("stopRow", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)3);
-  private static final org.apache.thrift.protocol.TField COLUMNS_FIELD_DESC = new org.apache.thrift.protocol.TField("columns", org.apache.thrift.protocol.TType.LIST, (short)4);
-  private static final org.apache.thrift.protocol.TField CACHING_FIELD_DESC = new org.apache.thrift.protocol.TField("caching", org.apache.thrift.protocol.TType.I32, (short)5);
-  private static final org.apache.thrift.protocol.TField FILTER_STRING_FIELD_DESC = new org.apache.thrift.protocol.TField("filterString", org.apache.thrift.protocol.TType.STRING, (short)6);
+  private static final org.apache.thrift.protocol.TField COLUMNS_FIELD_DESC = new org.apache.thrift.protocol.TField("columns", org.apache.thrift.protocol.TType.LIST, (short)3);
+  private static final org.apache.thrift.protocol.TField CACHING_FIELD_DESC = new org.apache.thrift.protocol.TField("caching", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField MAX_VERSIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("maxVersions", org.apache.thrift.protocol.TType.I32, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -48,19 +48,17 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
 
   public ByteBuffer startRow; // optional
   public ByteBuffer stopRow; // optional
-  public long timestamp; // optional
-  public List<ByteBuffer> columns; // optional
+  public List<TColumn> columns; // optional
   public int caching; // optional
-  public ByteBuffer filterString; // optional
+  public int maxVersions; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     START_ROW((short)1, "startRow"),
     STOP_ROW((short)2, "stopRow"),
-    TIMESTAMP((short)3, "timestamp"),
-    COLUMNS((short)4, "columns"),
-    CACHING((short)5, "caching"),
-    FILTER_STRING((short)6, "filterString");
+    COLUMNS((short)3, "columns"),
+    CACHING((short)4, "caching"),
+    MAX_VERSIONS((short)5, "maxVersions");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -79,14 +77,12 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
           return START_ROW;
         case 2: // STOP_ROW
           return STOP_ROW;
-        case 3: // TIMESTAMP
-          return TIMESTAMP;
-        case 4: // COLUMNS
+        case 3: // COLUMNS
           return COLUMNS;
-        case 5: // CACHING
+        case 4: // CACHING
           return CACHING;
-        case 6: // FILTER_STRING
-          return FILTER_STRING;
+        case 5: // MAX_VERSIONS
+          return MAX_VERSIONS;
         default:
           return null;
       }
@@ -127,31 +123,31 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
   }
 
   // isset id assignments
-  private static final int __TIMESTAMP_ISSET_ID = 0;
-  private static final int __CACHING_ISSET_ID = 1;
+  private static final int __CACHING_ISSET_ID = 0;
+  private static final int __MAXVERSIONS_ISSET_ID = 1;
   private BitSet __isset_bit_vector = new BitSet(2);
-  private _Fields optionals[] = {_Fields.START_ROW,_Fields.STOP_ROW,_Fields.TIMESTAMP,_Fields.COLUMNS,_Fields.CACHING,_Fields.FILTER_STRING};
+  private _Fields optionals[] = {_Fields.START_ROW,_Fields.STOP_ROW,_Fields.COLUMNS,_Fields.CACHING,_Fields.MAX_VERSIONS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.START_ROW, new org.apache.thrift.meta_data.FieldMetaData("startRow", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , "Text")));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     tmpMap.put(_Fields.STOP_ROW, new org.apache.thrift.meta_data.FieldMetaData("stopRow", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , "Text")));
-    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     tmpMap.put(_Fields.COLUMNS, new org.apache.thrift.meta_data.FieldMetaData("columns", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING            , "Text"))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TColumn.class))));
     tmpMap.put(_Fields.CACHING, new org.apache.thrift.meta_data.FieldMetaData("caching", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.FILTER_STRING, new org.apache.thrift.meta_data.FieldMetaData("filterString", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , "Text")));
+    tmpMap.put(_Fields.MAX_VERSIONS, new org.apache.thrift.meta_data.FieldMetaData("maxVersions", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TScan.class, metaDataMap);
   }
 
   public TScan() {
+    this.maxVersions = 1;
+
   }
 
   /**
@@ -161,23 +157,22 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetStartRow()) {
-      this.startRow = other.startRow;
+      this.startRow = org.apache.thrift.TBaseHelper.copyBinary(other.startRow);
+;
     }
     if (other.isSetStopRow()) {
-      this.stopRow = other.stopRow;
+      this.stopRow = org.apache.thrift.TBaseHelper.copyBinary(other.stopRow);
+;
     }
-    this.timestamp = other.timestamp;
     if (other.isSetColumns()) {
-      List<ByteBuffer> __this__columns = new ArrayList<ByteBuffer>();
-      for (ByteBuffer other_element : other.columns) {
-        __this__columns.add(other_element);
+      List<TColumn> __this__columns = new ArrayList<TColumn>();
+      for (TColumn other_element : other.columns) {
+        __this__columns.add(new TColumn(other_element));
       }
       this.columns = __this__columns;
     }
     this.caching = other.caching;
-    if (other.isSetFilterString()) {
-      this.filterString = other.filterString;
-    }
+    this.maxVersions = other.maxVersions;
   }
 
   public TScan deepCopy() {
@@ -188,12 +183,11 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
   public void clear() {
     this.startRow = null;
     this.stopRow = null;
-    setTimestampIsSet(false);
-    this.timestamp = 0;
     this.columns = null;
     setCachingIsSet(false);
     this.caching = 0;
-    this.filterString = null;
+    this.maxVersions = 1;
+
   }
 
   public byte[] getStartRow() {
@@ -264,49 +258,26 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
     }
   }
 
-  public long getTimestamp() {
-    return this.timestamp;
-  }
-
-  public TScan setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
-    return this;
-  }
-
-  public void unsetTimestamp() {
-    __isset_bit_vector.clear(__TIMESTAMP_ISSET_ID);
-  }
-
-  /** Returns true if field timestamp is set (has been assigned a value) and false otherwise */
-  public boolean isSetTimestamp() {
-    return __isset_bit_vector.get(__TIMESTAMP_ISSET_ID);
-  }
-
-  public void setTimestampIsSet(boolean value) {
-    __isset_bit_vector.set(__TIMESTAMP_ISSET_ID, value);
-  }
-
   public int getColumnsSize() {
     return (this.columns == null) ? 0 : this.columns.size();
   }
 
-  public java.util.Iterator<ByteBuffer> getColumnsIterator() {
+  public java.util.Iterator<TColumn> getColumnsIterator() {
     return (this.columns == null) ? null : this.columns.iterator();
   }
 
-  public void addToColumns(ByteBuffer elem) {
+  public void addToColumns(TColumn elem) {
     if (this.columns == null) {
-      this.columns = new ArrayList<ByteBuffer>();
+      this.columns = new ArrayList<TColumn>();
     }
     this.columns.add(elem);
   }
 
-  public List<ByteBuffer> getColumns() {
+  public List<TColumn> getColumns() {
     return this.columns;
   }
 
-  public TScan setColumns(List<ByteBuffer> columns) {
+  public TScan setColumns(List<TColumn> columns) {
     this.columns = columns;
     return this;
   }
@@ -349,38 +320,27 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
     __isset_bit_vector.set(__CACHING_ISSET_ID, value);
   }
 
-  public byte[] getFilterString() {
-    setFilterString(org.apache.thrift.TBaseHelper.rightSize(filterString));
-    return filterString == null ? null : filterString.array();
+  public int getMaxVersions() {
+    return this.maxVersions;
   }
 
-  public ByteBuffer bufferForFilterString() {
-    return filterString;
-  }
-
-  public TScan setFilterString(byte[] filterString) {
-    setFilterString(filterString == null ? (ByteBuffer)null : ByteBuffer.wrap(filterString));
+  public TScan setMaxVersions(int maxVersions) {
+    this.maxVersions = maxVersions;
+    setMaxVersionsIsSet(true);
     return this;
   }
 
-  public TScan setFilterString(ByteBuffer filterString) {
-    this.filterString = filterString;
-    return this;
+  public void unsetMaxVersions() {
+    __isset_bit_vector.clear(__MAXVERSIONS_ISSET_ID);
   }
 
-  public void unsetFilterString() {
-    this.filterString = null;
+  /** Returns true if field maxVersions is set (has been assigned a value) and false otherwise */
+  public boolean isSetMaxVersions() {
+    return __isset_bit_vector.get(__MAXVERSIONS_ISSET_ID);
   }
 
-  /** Returns true if field filterString is set (has been assigned a value) and false otherwise */
-  public boolean isSetFilterString() {
-    return this.filterString != null;
-  }
-
-  public void setFilterStringIsSet(boolean value) {
-    if (!value) {
-      this.filterString = null;
-    }
+  public void setMaxVersionsIsSet(boolean value) {
+    __isset_bit_vector.set(__MAXVERSIONS_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
@@ -401,19 +361,11 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       }
       break;
 
-    case TIMESTAMP:
-      if (value == null) {
-        unsetTimestamp();
-      } else {
-        setTimestamp((Long)value);
-      }
-      break;
-
     case COLUMNS:
       if (value == null) {
         unsetColumns();
       } else {
-        setColumns((List<ByteBuffer>)value);
+        setColumns((List<TColumn>)value);
       }
       break;
 
@@ -425,11 +377,11 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       }
       break;
 
-    case FILTER_STRING:
+    case MAX_VERSIONS:
       if (value == null) {
-        unsetFilterString();
+        unsetMaxVersions();
       } else {
-        setFilterString((ByteBuffer)value);
+        setMaxVersions((Integer)value);
       }
       break;
 
@@ -444,17 +396,14 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
     case STOP_ROW:
       return getStopRow();
 
-    case TIMESTAMP:
-      return Long.valueOf(getTimestamp());
-
     case COLUMNS:
       return getColumns();
 
     case CACHING:
       return Integer.valueOf(getCaching());
 
-    case FILTER_STRING:
-      return getFilterString();
+    case MAX_VERSIONS:
+      return Integer.valueOf(getMaxVersions());
 
     }
     throw new IllegalStateException();
@@ -471,14 +420,12 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       return isSetStartRow();
     case STOP_ROW:
       return isSetStopRow();
-    case TIMESTAMP:
-      return isSetTimestamp();
     case COLUMNS:
       return isSetColumns();
     case CACHING:
       return isSetCaching();
-    case FILTER_STRING:
-      return isSetFilterString();
+    case MAX_VERSIONS:
+      return isSetMaxVersions();
     }
     throw new IllegalStateException();
   }
@@ -514,15 +461,6 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
         return false;
     }
 
-    boolean this_present_timestamp = true && this.isSetTimestamp();
-    boolean that_present_timestamp = true && that.isSetTimestamp();
-    if (this_present_timestamp || that_present_timestamp) {
-      if (!(this_present_timestamp && that_present_timestamp))
-        return false;
-      if (this.timestamp != that.timestamp)
-        return false;
-    }
-
     boolean this_present_columns = true && this.isSetColumns();
     boolean that_present_columns = true && that.isSetColumns();
     if (this_present_columns || that_present_columns) {
@@ -541,12 +479,12 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
         return false;
     }
 
-    boolean this_present_filterString = true && this.isSetFilterString();
-    boolean that_present_filterString = true && that.isSetFilterString();
-    if (this_present_filterString || that_present_filterString) {
-      if (!(this_present_filterString && that_present_filterString))
+    boolean this_present_maxVersions = true && this.isSetMaxVersions();
+    boolean that_present_maxVersions = true && that.isSetMaxVersions();
+    if (this_present_maxVersions || that_present_maxVersions) {
+      if (!(this_present_maxVersions && that_present_maxVersions))
         return false;
-      if (!this.filterString.equals(that.filterString))
+      if (this.maxVersions != that.maxVersions)
         return false;
     }
 
@@ -586,16 +524,6 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetTimestamp()).compareTo(typedOther.isSetTimestamp());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTimestamp()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestamp, typedOther.timestamp);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetColumns()).compareTo(typedOther.isSetColumns());
     if (lastComparison != 0) {
       return lastComparison;
@@ -616,12 +544,12 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetFilterString()).compareTo(typedOther.isSetFilterString());
+    lastComparison = Boolean.valueOf(isSetMaxVersions()).compareTo(typedOther.isSetMaxVersions());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetFilterString()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.filterString, typedOther.filterString);
+    if (isSetMaxVersions()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.maxVersions, typedOther.maxVersions);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -651,7 +579,7 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       if (this.startRow == null) {
         sb.append("null");
       } else {
-        sb.append(this.startRow);
+        org.apache.thrift.TBaseHelper.toString(this.startRow, sb);
       }
       first = false;
     }
@@ -661,14 +589,8 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       if (this.stopRow == null) {
         sb.append("null");
       } else {
-        sb.append(this.stopRow);
+        org.apache.thrift.TBaseHelper.toString(this.stopRow, sb);
       }
-      first = false;
-    }
-    if (isSetTimestamp()) {
-      if (!first) sb.append(", ");
-      sb.append("timestamp:");
-      sb.append(this.timestamp);
       first = false;
     }
     if (isSetColumns()) {
@@ -687,14 +609,10 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       sb.append(this.caching);
       first = false;
     }
-    if (isSetFilterString()) {
+    if (isSetMaxVersions()) {
       if (!first) sb.append(", ");
-      sb.append("filterString:");
-      if (this.filterString == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.filterString);
-      }
+      sb.append("maxVersions:");
+      sb.append(this.maxVersions);
       first = false;
     }
     sb.append(")");
@@ -757,24 +675,17 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // TIMESTAMP
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.timestamp = iprot.readI64();
-              struct.setTimestampIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 4: // COLUMNS
+          case 3: // COLUMNS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list26 = iprot.readListBegin();
-                struct.columns = new ArrayList<ByteBuffer>(_list26.size);
-                for (int _i27 = 0; _i27 < _list26.size; ++_i27)
+                org.apache.thrift.protocol.TList _list58 = iprot.readListBegin();
+                struct.columns = new ArrayList<TColumn>(_list58.size);
+                for (int _i59 = 0; _i59 < _list58.size; ++_i59)
                 {
-                  ByteBuffer _elem28; // required
-                  _elem28 = iprot.readBinary();
-                  struct.columns.add(_elem28);
+                  TColumn _elem60; // required
+                  _elem60 = new TColumn();
+                  _elem60.read(iprot);
+                  struct.columns.add(_elem60);
                 }
                 iprot.readListEnd();
               }
@@ -783,7 +694,7 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // CACHING
+          case 4: // CACHING
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.caching = iprot.readI32();
               struct.setCachingIsSet(true);
@@ -791,10 +702,10 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // FILTER_STRING
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.filterString = iprot.readBinary();
-              struct.setFilterStringIsSet(true);
+          case 5: // MAX_VERSIONS
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.maxVersions = iprot.readI32();
+              struct.setMaxVersionsIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -828,19 +739,14 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
           oprot.writeFieldEnd();
         }
       }
-      if (struct.isSetTimestamp()) {
-        oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
-        oprot.writeI64(struct.timestamp);
-        oprot.writeFieldEnd();
-      }
       if (struct.columns != null) {
         if (struct.isSetColumns()) {
           oprot.writeFieldBegin(COLUMNS_FIELD_DESC);
           {
-            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.columns.size()));
-            for (ByteBuffer _iter29 : struct.columns)
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.columns.size()));
+            for (TColumn _iter61 : struct.columns)
             {
-              oprot.writeBinary(_iter29);
+              _iter61.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -852,12 +758,10 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
         oprot.writeI32(struct.caching);
         oprot.writeFieldEnd();
       }
-      if (struct.filterString != null) {
-        if (struct.isSetFilterString()) {
-          oprot.writeFieldBegin(FILTER_STRING_FIELD_DESC);
-          oprot.writeBinary(struct.filterString);
-          oprot.writeFieldEnd();
-        }
+      if (struct.isSetMaxVersions()) {
+        oprot.writeFieldBegin(MAX_VERSIONS_FIELD_DESC);
+        oprot.writeI32(struct.maxVersions);
+        oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -883,49 +787,43 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       if (struct.isSetStopRow()) {
         optionals.set(1);
       }
-      if (struct.isSetTimestamp()) {
+      if (struct.isSetColumns()) {
         optionals.set(2);
       }
-      if (struct.isSetColumns()) {
+      if (struct.isSetCaching()) {
         optionals.set(3);
       }
-      if (struct.isSetCaching()) {
+      if (struct.isSetMaxVersions()) {
         optionals.set(4);
       }
-      if (struct.isSetFilterString()) {
-        optionals.set(5);
-      }
-      oprot.writeBitSet(optionals, 6);
+      oprot.writeBitSet(optionals, 5);
       if (struct.isSetStartRow()) {
         oprot.writeBinary(struct.startRow);
       }
       if (struct.isSetStopRow()) {
         oprot.writeBinary(struct.stopRow);
       }
-      if (struct.isSetTimestamp()) {
-        oprot.writeI64(struct.timestamp);
-      }
       if (struct.isSetColumns()) {
         {
           oprot.writeI32(struct.columns.size());
-          for (ByteBuffer _iter30 : struct.columns)
+          for (TColumn _iter62 : struct.columns)
           {
-            oprot.writeBinary(_iter30);
+            _iter62.write(oprot);
           }
         }
       }
       if (struct.isSetCaching()) {
         oprot.writeI32(struct.caching);
       }
-      if (struct.isSetFilterString()) {
-        oprot.writeBinary(struct.filterString);
+      if (struct.isSetMaxVersions()) {
+        oprot.writeI32(struct.maxVersions);
       }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TScan struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(6);
+      BitSet incoming = iprot.readBitSet(5);
       if (incoming.get(0)) {
         struct.startRow = iprot.readBinary();
         struct.setStartRowIsSet(true);
@@ -935,29 +833,26 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
         struct.setStopRowIsSet(true);
       }
       if (incoming.get(2)) {
-        struct.timestamp = iprot.readI64();
-        struct.setTimestampIsSet(true);
-      }
-      if (incoming.get(3)) {
         {
-          org.apache.thrift.protocol.TList _list31 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.columns = new ArrayList<ByteBuffer>(_list31.size);
-          for (int _i32 = 0; _i32 < _list31.size; ++_i32)
+          org.apache.thrift.protocol.TList _list63 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.columns = new ArrayList<TColumn>(_list63.size);
+          for (int _i64 = 0; _i64 < _list63.size; ++_i64)
           {
-            ByteBuffer _elem33; // required
-            _elem33 = iprot.readBinary();
-            struct.columns.add(_elem33);
+            TColumn _elem65; // required
+            _elem65 = new TColumn();
+            _elem65.read(iprot);
+            struct.columns.add(_elem65);
           }
         }
         struct.setColumnsIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(3)) {
         struct.caching = iprot.readI32();
         struct.setCachingIsSet(true);
       }
-      if (incoming.get(5)) {
-        struct.filterString = iprot.readBinary();
-        struct.setFilterStringIsSet(true);
+      if (incoming.get(4)) {
+        struct.maxVersions = iprot.readI32();
+        struct.setMaxVersionsIsSet(true);
       }
     }
   }

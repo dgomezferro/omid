@@ -27,31 +27,25 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * TCell - Used to transport a cell value (byte[]) and the timestamp it was
- * stored with together as a result for get and getRow methods. This promotes
- * the timestamp of a cell to a first-class value, making it easy to take
- * note of temporal data. Cell is used all the way from HStore up to HTable.
- */
-public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TCell");
+public class TTimeRange implements org.apache.thrift.TBase<TTimeRange, TTimeRange._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TTimeRange");
 
-  private static final org.apache.thrift.protocol.TField VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("value", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)2);
+  private static final org.apache.thrift.protocol.TField MIN_STAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("minStamp", org.apache.thrift.protocol.TType.I64, (short)1);
+  private static final org.apache.thrift.protocol.TField MAX_STAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("maxStamp", org.apache.thrift.protocol.TType.I64, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new TCellStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new TCellTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TTimeRangeStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TTimeRangeTupleSchemeFactory());
   }
 
-  public ByteBuffer value; // required
-  public long timestamp; // required
+  public long minStamp; // required
+  public long maxStamp; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    VALUE((short)1, "value"),
-    TIMESTAMP((short)2, "timestamp");
+    MIN_STAMP((short)1, "minStamp"),
+    MAX_STAMP((short)2, "maxStamp");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -66,10 +60,10 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // VALUE
-          return VALUE;
-        case 2: // TIMESTAMP
-          return TIMESTAMP;
+        case 1: // MIN_STAMP
+          return MIN_STAMP;
+        case 2: // MAX_STAMP
+          return MAX_STAMP;
         default:
           return null;
       }
@@ -110,127 +104,117 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
   }
 
   // isset id assignments
-  private static final int __TIMESTAMP_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
+  private static final int __MINSTAMP_ISSET_ID = 0;
+  private static final int __MAXSTAMP_ISSET_ID = 1;
+  private BitSet __isset_bit_vector = new BitSet(2);
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.VALUE, new org.apache.thrift.meta_data.FieldMetaData("value", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , "Bytes")));
-    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.MIN_STAMP, new org.apache.thrift.meta_data.FieldMetaData("minStamp", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.MAX_STAMP, new org.apache.thrift.meta_data.FieldMetaData("maxStamp", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TCell.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TTimeRange.class, metaDataMap);
   }
 
-  public TCell() {
+  public TTimeRange() {
   }
 
-  public TCell(
-    ByteBuffer value,
-    long timestamp)
+  public TTimeRange(
+    long minStamp,
+    long maxStamp)
   {
     this();
-    this.value = value;
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
+    this.minStamp = minStamp;
+    setMinStampIsSet(true);
+    this.maxStamp = maxStamp;
+    setMaxStampIsSet(true);
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public TCell(TCell other) {
+  public TTimeRange(TTimeRange other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
-    if (other.isSetValue()) {
-      this.value = other.value;
-    }
-    this.timestamp = other.timestamp;
+    this.minStamp = other.minStamp;
+    this.maxStamp = other.maxStamp;
   }
 
-  public TCell deepCopy() {
-    return new TCell(this);
+  public TTimeRange deepCopy() {
+    return new TTimeRange(this);
   }
 
   @Override
   public void clear() {
-    this.value = null;
-    setTimestampIsSet(false);
-    this.timestamp = 0;
+    setMinStampIsSet(false);
+    this.minStamp = 0;
+    setMaxStampIsSet(false);
+    this.maxStamp = 0;
   }
 
-  public byte[] getValue() {
-    setValue(org.apache.thrift.TBaseHelper.rightSize(value));
-    return value == null ? null : value.array();
+  public long getMinStamp() {
+    return this.minStamp;
   }
 
-  public ByteBuffer bufferForValue() {
-    return value;
-  }
-
-  public TCell setValue(byte[] value) {
-    setValue(value == null ? (ByteBuffer)null : ByteBuffer.wrap(value));
+  public TTimeRange setMinStamp(long minStamp) {
+    this.minStamp = minStamp;
+    setMinStampIsSet(true);
     return this;
   }
 
-  public TCell setValue(ByteBuffer value) {
-    this.value = value;
+  public void unsetMinStamp() {
+    __isset_bit_vector.clear(__MINSTAMP_ISSET_ID);
+  }
+
+  /** Returns true if field minStamp is set (has been assigned a value) and false otherwise */
+  public boolean isSetMinStamp() {
+    return __isset_bit_vector.get(__MINSTAMP_ISSET_ID);
+  }
+
+  public void setMinStampIsSet(boolean value) {
+    __isset_bit_vector.set(__MINSTAMP_ISSET_ID, value);
+  }
+
+  public long getMaxStamp() {
+    return this.maxStamp;
+  }
+
+  public TTimeRange setMaxStamp(long maxStamp) {
+    this.maxStamp = maxStamp;
+    setMaxStampIsSet(true);
     return this;
   }
 
-  public void unsetValue() {
-    this.value = null;
+  public void unsetMaxStamp() {
+    __isset_bit_vector.clear(__MAXSTAMP_ISSET_ID);
   }
 
-  /** Returns true if field value is set (has been assigned a value) and false otherwise */
-  public boolean isSetValue() {
-    return this.value != null;
+  /** Returns true if field maxStamp is set (has been assigned a value) and false otherwise */
+  public boolean isSetMaxStamp() {
+    return __isset_bit_vector.get(__MAXSTAMP_ISSET_ID);
   }
 
-  public void setValueIsSet(boolean value) {
-    if (!value) {
-      this.value = null;
-    }
-  }
-
-  public long getTimestamp() {
-    return this.timestamp;
-  }
-
-  public TCell setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
-    return this;
-  }
-
-  public void unsetTimestamp() {
-    __isset_bit_vector.clear(__TIMESTAMP_ISSET_ID);
-  }
-
-  /** Returns true if field timestamp is set (has been assigned a value) and false otherwise */
-  public boolean isSetTimestamp() {
-    return __isset_bit_vector.get(__TIMESTAMP_ISSET_ID);
-  }
-
-  public void setTimestampIsSet(boolean value) {
-    __isset_bit_vector.set(__TIMESTAMP_ISSET_ID, value);
+  public void setMaxStampIsSet(boolean value) {
+    __isset_bit_vector.set(__MAXSTAMP_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case VALUE:
+    case MIN_STAMP:
       if (value == null) {
-        unsetValue();
+        unsetMinStamp();
       } else {
-        setValue((ByteBuffer)value);
+        setMinStamp((Long)value);
       }
       break;
 
-    case TIMESTAMP:
+    case MAX_STAMP:
       if (value == null) {
-        unsetTimestamp();
+        unsetMaxStamp();
       } else {
-        setTimestamp((Long)value);
+        setMaxStamp((Long)value);
       }
       break;
 
@@ -239,11 +223,11 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case VALUE:
-      return getValue();
+    case MIN_STAMP:
+      return Long.valueOf(getMinStamp());
 
-    case TIMESTAMP:
-      return Long.valueOf(getTimestamp());
+    case MAX_STAMP:
+      return Long.valueOf(getMaxStamp());
 
     }
     throw new IllegalStateException();
@@ -256,10 +240,10 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
     }
 
     switch (field) {
-    case VALUE:
-      return isSetValue();
-    case TIMESTAMP:
-      return isSetTimestamp();
+    case MIN_STAMP:
+      return isSetMinStamp();
+    case MAX_STAMP:
+      return isSetMaxStamp();
     }
     throw new IllegalStateException();
   }
@@ -268,30 +252,30 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof TCell)
-      return this.equals((TCell)that);
+    if (that instanceof TTimeRange)
+      return this.equals((TTimeRange)that);
     return false;
   }
 
-  public boolean equals(TCell that) {
+  public boolean equals(TTimeRange that) {
     if (that == null)
       return false;
 
-    boolean this_present_value = true && this.isSetValue();
-    boolean that_present_value = true && that.isSetValue();
-    if (this_present_value || that_present_value) {
-      if (!(this_present_value && that_present_value))
+    boolean this_present_minStamp = true;
+    boolean that_present_minStamp = true;
+    if (this_present_minStamp || that_present_minStamp) {
+      if (!(this_present_minStamp && that_present_minStamp))
         return false;
-      if (!this.value.equals(that.value))
+      if (this.minStamp != that.minStamp)
         return false;
     }
 
-    boolean this_present_timestamp = true;
-    boolean that_present_timestamp = true;
-    if (this_present_timestamp || that_present_timestamp) {
-      if (!(this_present_timestamp && that_present_timestamp))
+    boolean this_present_maxStamp = true;
+    boolean that_present_maxStamp = true;
+    if (this_present_maxStamp || that_present_maxStamp) {
+      if (!(this_present_maxStamp && that_present_maxStamp))
         return false;
-      if (this.timestamp != that.timestamp)
+      if (this.maxStamp != that.maxStamp)
         return false;
     }
 
@@ -303,30 +287,30 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
     return 0;
   }
 
-  public int compareTo(TCell other) {
+  public int compareTo(TTimeRange other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    TCell typedOther = (TCell)other;
+    TTimeRange typedOther = (TTimeRange)other;
 
-    lastComparison = Boolean.valueOf(isSetValue()).compareTo(typedOther.isSetValue());
+    lastComparison = Boolean.valueOf(isSetMinStamp()).compareTo(typedOther.isSetMinStamp());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.value, typedOther.value);
+    if (isSetMinStamp()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.minStamp, typedOther.minStamp);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetTimestamp()).compareTo(typedOther.isSetTimestamp());
+    lastComparison = Boolean.valueOf(isSetMaxStamp()).compareTo(typedOther.isSetMaxStamp());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTimestamp()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestamp, typedOther.timestamp);
+    if (isSetMaxStamp()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.maxStamp, typedOther.maxStamp);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -348,19 +332,15 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("TCell(");
+    StringBuilder sb = new StringBuilder("TTimeRange(");
     boolean first = true;
 
-    sb.append("value:");
-    if (this.value == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.value);
-    }
+    sb.append("minStamp:");
+    sb.append(this.minStamp);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("timestamp:");
-    sb.append(this.timestamp);
+    sb.append("maxStamp:");
+    sb.append(this.maxStamp);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -368,6 +348,8 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
+    // alas, we cannot check 'minStamp' because it's a primitive and you chose the non-beans generator.
+    // alas, we cannot check 'maxStamp' because it's a primitive and you chose the non-beans generator.
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -388,15 +370,15 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
     }
   }
 
-  private static class TCellStandardSchemeFactory implements SchemeFactory {
-    public TCellStandardScheme getScheme() {
-      return new TCellStandardScheme();
+  private static class TTimeRangeStandardSchemeFactory implements SchemeFactory {
+    public TTimeRangeStandardScheme getScheme() {
+      return new TTimeRangeStandardScheme();
     }
   }
 
-  private static class TCellStandardScheme extends StandardScheme<TCell> {
+  private static class TTimeRangeStandardScheme extends StandardScheme<TTimeRange> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, TCell struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TTimeRange struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -406,18 +388,18 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
           break;
         }
         switch (schemeField.id) {
-          case 1: // VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.value = iprot.readBinary();
-              struct.setValueIsSet(true);
+          case 1: // MIN_STAMP
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.minStamp = iprot.readI64();
+              struct.setMinStampIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // TIMESTAMP
+          case 2: // MAX_STAMP
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.timestamp = iprot.readI64();
-              struct.setTimestampIsSet(true);
+              struct.maxStamp = iprot.readI64();
+              struct.setMaxStampIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -430,20 +412,24 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
+      if (!struct.isSetMinStamp()) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'minStamp' was not found in serialized data! Struct: " + toString());
+      }
+      if (!struct.isSetMaxStamp()) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'maxStamp' was not found in serialized data! Struct: " + toString());
+      }
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, TCell struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TTimeRange struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.value != null) {
-        oprot.writeFieldBegin(VALUE_FIELD_DESC);
-        oprot.writeBinary(struct.value);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
-      oprot.writeI64(struct.timestamp);
+      oprot.writeFieldBegin(MIN_STAMP_FIELD_DESC);
+      oprot.writeI64(struct.minStamp);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(MAX_STAMP_FIELD_DESC);
+      oprot.writeI64(struct.maxStamp);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -451,45 +437,28 @@ public class TCell implements org.apache.thrift.TBase<TCell, TCell._Fields>, jav
 
   }
 
-  private static class TCellTupleSchemeFactory implements SchemeFactory {
-    public TCellTupleScheme getScheme() {
-      return new TCellTupleScheme();
+  private static class TTimeRangeTupleSchemeFactory implements SchemeFactory {
+    public TTimeRangeTupleScheme getScheme() {
+      return new TTimeRangeTupleScheme();
     }
   }
 
-  private static class TCellTupleScheme extends TupleScheme<TCell> {
+  private static class TTimeRangeTupleScheme extends TupleScheme<TTimeRange> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, TCell struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TTimeRange struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
-      BitSet optionals = new BitSet();
-      if (struct.isSetValue()) {
-        optionals.set(0);
-      }
-      if (struct.isSetTimestamp()) {
-        optionals.set(1);
-      }
-      oprot.writeBitSet(optionals, 2);
-      if (struct.isSetValue()) {
-        oprot.writeBinary(struct.value);
-      }
-      if (struct.isSetTimestamp()) {
-        oprot.writeI64(struct.timestamp);
-      }
+      oprot.writeI64(struct.minStamp);
+      oprot.writeI64(struct.maxStamp);
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, TCell struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TTimeRange struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(2);
-      if (incoming.get(0)) {
-        struct.value = iprot.readBinary();
-        struct.setValueIsSet(true);
-      }
-      if (incoming.get(1)) {
-        struct.timestamp = iprot.readI64();
-        struct.setTimestampIsSet(true);
-      }
+      struct.minStamp = iprot.readI64();
+      struct.setMinStampIsSet(true);
+      struct.maxStamp = iprot.readI64();
+      struct.setMaxStampIsSet(true);
     }
   }
 
