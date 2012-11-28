@@ -678,14 +678,14 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
           case 3: // COLUMNS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list58 = iprot.readListBegin();
-                struct.columns = new ArrayList<TColumn>(_list58.size);
-                for (int _i59 = 0; _i59 < _list58.size; ++_i59)
+                org.apache.thrift.protocol.TList _list48 = iprot.readListBegin();
+                struct.columns = new ArrayList<TColumn>(_list48.size);
+                for (int _i49 = 0; _i49 < _list48.size; ++_i49)
                 {
-                  TColumn _elem60; // required
-                  _elem60 = new TColumn();
-                  _elem60.read(iprot);
-                  struct.columns.add(_elem60);
+                  TColumn _elem50; // required
+                  _elem50 = new TColumn();
+                  _elem50.read(iprot);
+                  struct.columns.add(_elem50);
                 }
                 iprot.readListEnd();
               }
@@ -744,9 +744,9 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
           oprot.writeFieldBegin(COLUMNS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.columns.size()));
-            for (TColumn _iter61 : struct.columns)
+            for (TColumn _iter51 : struct.columns)
             {
-              _iter61.write(oprot);
+              _iter51.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -806,9 +806,9 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       if (struct.isSetColumns()) {
         {
           oprot.writeI32(struct.columns.size());
-          for (TColumn _iter62 : struct.columns)
+          for (TColumn _iter52 : struct.columns)
           {
-            _iter62.write(oprot);
+            _iter52.write(oprot);
           }
         }
       }
@@ -834,14 +834,14 @@ public class TScan implements org.apache.thrift.TBase<TScan, TScan._Fields>, jav
       }
       if (incoming.get(2)) {
         {
-          org.apache.thrift.protocol.TList _list63 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.columns = new ArrayList<TColumn>(_list63.size);
-          for (int _i64 = 0; _i64 < _list63.size; ++_i64)
+          org.apache.thrift.protocol.TList _list53 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.columns = new ArrayList<TColumn>(_list53.size);
+          for (int _i54 = 0; _i54 < _list53.size; ++_i54)
           {
-            TColumn _elem65; // required
-            _elem65 = new TColumn();
-            _elem65.read(iprot);
-            struct.columns.add(_elem65);
+            TColumn _elem55; // required
+            _elem55 = new TColumn();
+            _elem55.read(iprot);
+            struct.columns.add(_elem55);
           }
         }
         struct.setColumnsIsSet(true);

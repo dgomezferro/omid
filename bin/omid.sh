@@ -41,7 +41,7 @@ fi
 
 tso() {
     export LD_LIBRARY_PATH=`$READLINK -f ../src/main/native`
-    exec java -Xmx1024m -cp $CLASSPATH -Domid.maxItems=100000 -Domid.maxCommits=100000 -Djava.library.path=$LD_LIBRARY_PATH -Dlog4j.configuration=log4j.properties com.yahoo.omid.tso.TSOServer -port 1234 -batch $BATCHSIZE -ensemble 4 -quorum 2 -zk localhost:2181
+    exec java -Xmx1024m -cp $CLASSPATH -Domid.maxItems=100000 -Domid.maxCommits=100000 -Djava.library.path=$LD_LIBRARY_PATH -Dlog4j.configuration=log4j.properties com.yahoo.omid.tso.TSOServer -port 1234 -batch $BATCHSIZE -ensemble 4 -quorum 2 -ha -zk localhost:2181
 }
 
 tsobench() {
@@ -62,6 +62,10 @@ testtable() {
     exec java -cp $CLASSPATH:../target/test-classes com.yahoo.omid.TestTable
 }
 
+thrift() {
+    java -cp $CLASSPATH com.yahoo.omid.thrift.ThriftServer $@ start
+}
+
 usage() {
     echo "Usage: omid.sh <command>"
     echo "where <command> is one of:"
@@ -70,6 +74,7 @@ usage() {
     echo "  bktest        Start test bookkeeper ensemble. Starts zookeeper also."
     echo "  tran-hbase    Start hbase with transaction support."
     echo "  test-table    Create test table"
+    echo "  thrift        Start the Thrift server."
 }
 
 # if no args specified, show usage
@@ -90,6 +95,9 @@ elif [ "$COMMAND" = "tran-hbase" ]; then
     tranhbase;
 elif [ "$COMMAND" = "test-table" ]; then
     testtable;
+elif [ "$COMMAND" = "thrift" ]; then
+    shift
+    thrift $@;
 else
     usage;
 fi

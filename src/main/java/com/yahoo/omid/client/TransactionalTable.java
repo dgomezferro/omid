@@ -117,6 +117,9 @@ public class TransactionalTable extends HTable {
       }
       for (List<KeyValue> kvl : fmap.values()) {
          for (KeyValue kv : kvl) {
+            // Update transaction state
+            transactionState.addCell(new Cell(getTableName(), kv.getRow(), kv.getFamily(), kv.getQualifier()));
+
             switch(KeyValue.Type.codeToType(kv.getType())) {
             case DeleteColumn:
                deleteP.add(kv.getFamily(), kv.getQualifier(), startTimestamp, null);
@@ -143,11 +146,11 @@ public class TransactionalTable extends HTable {
             for (Entry<byte[], NavigableMap<Long, byte[]>> entryQ : entryF.getValue().entrySet()) {
                byte[] qualifier = entryQ.getKey();
                deleteP.add(family, qualifier, null);
+
+               transactionState.addCell(new Cell(getTableName(), delete.getRow(), family, qualifier));
             }
          }
       }
-
-      transactionState.addRow(new RowKeyFamily(delete.getRow(), getTableName(), deleteP.getFamilyMap()));
       
       put(deleteP);
    }
@@ -167,11 +170,11 @@ public class TransactionalTable extends HTable {
       for (List<KeyValue> kvl : kvs.values()) {
          for (KeyValue kv : kvl) {
             tsput.add(new KeyValue(kv.getRow(), kv.getFamily(), kv.getQualifier(), startTimestamp, kv.getValue()));
+       
+            // update transaction state
+            transactionState.addCell(new Cell(getTableName(), put.getRow(), kv.getFamily(), kv.getQualifier()));
          }
       }
-
-      // should add the table as well
-      transactionState.addRow(new RowKeyFamily(tsput.getRow(), getTableName(), tsput.getFamilyMap()));
 
       put(tsput);
    }

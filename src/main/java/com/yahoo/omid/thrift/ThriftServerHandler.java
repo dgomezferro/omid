@@ -29,12 +29,13 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.thrift.TException;
 
+import com.yahoo.omid.client.Cell;
 import com.yahoo.omid.client.CommitUnsuccessfulException;
-import com.yahoo.omid.client.RowKeyFamily;
 import com.yahoo.omid.client.TransactionException;
 import com.yahoo.omid.client.TransactionManager;
 import com.yahoo.omid.client.TransactionState;
 import com.yahoo.omid.client.TransactionalTable;
+import com.yahoo.omid.thrift.generated.TCell;
 import com.yahoo.omid.thrift.generated.TColumnValue;
 import com.yahoo.omid.thrift.generated.TDelete;
 import com.yahoo.omid.thrift.generated.TGet;
@@ -119,39 +120,28 @@ public class ThriftServerHandler implements TOmidService.Iface {
     }
 
     private TransactionState transactionFromThrift(TTransaction transaction) {
-        List<RowKeyFamily> rows = new ArrayList<RowKeyFamily>();
-        for (Entry<ByteBuffer, List<TPut>> entry : transaction.getRows().entrySet()) {
-            byte[] table = entry.getKey().array();
-            List<TPut> puts = entry.getValue();
-            for (TPut put : puts) {
-                RowKeyFamily rkf = new RowKeyFamily(put.getRow(), table, new HashMap<byte[], List<KeyValue>>());
-                for (TColumnValue tcv : put.getColumnValues()) {
-                    rkf.addFamily(put.getRow(), new KeyValue(put.getRow(), tcv.getFamily(), tcv.getQualifier(),
-                            transaction.getId(), tcv.getValue()));
-                }
-                rows.add(rkf);
-            }
+        List<Cell> cells = new ArrayList<Cell>();
+        for (TCell tcell : transaction.getCells()) {
+            Cell cell = new Cell(tcell.getTable(), tcell.getRow(), tcell.getFamily(), tcell.getQualifier());
+            cells.add(cell);
         }
-        return transactionManager.createTransactionState(transaction.getId(), rows);
+        return transactionManager.createTransactionState(transaction.getId(), cells);
     }
 
     private TTransaction transactionFromOmid(TransactionState ts) {
         TTransaction transaction = new TTransaction(ts.getStartTimestamp());
-        HashMap<ByteBuffer, List<TPut>> rows = new HashMap<ByteBuffer, List<TPut>>();
-        
-        for (RowKeyFamily rkf : ts.getRows()) {
-            ByteBuffer table = ByteBuffer.wrap(rkf.getTable());
-            List<TPut> puts = rows.get(table);
-            if (puts == null) {
-                puts = new ArrayList<TPut>();
-                rows.put(table, puts);
-            }
-            for (Entry<byte[], List<KeyValue>> entry : rkf.getFamilies().entrySet()) {
-                puts.add(new TPut(ByteBuffer.wrap(entry.getKey()), null));
-            }
-            
+        List<TCell> tcells = new ArrayList<TCell>();
+
+        for (Cell cell : ts.getCells()) {
+            ByteBuffer table = ByteBuffer.wrap(cell.getTable());
+            ByteBuffer row = ByteBuffer.wrap(cell.getRowKey());
+            ByteBuffer family = ByteBuffer.wrap(cell.getColumnFamily());
+            ByteBuffer qualifier = ByteBuffer.wrap(cell.getColumnQualifier());
+            TCell tcell = new TCell(table, row, family, qualifier);
+            tcells.add(tcell);
         }
-        transaction.setRows(rows);
+
+        transaction.setCells(tcells);
         return transaction;
     }
 

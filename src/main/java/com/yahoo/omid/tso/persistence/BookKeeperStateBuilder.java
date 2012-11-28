@@ -329,6 +329,7 @@ public class BookKeeperStateBuilder extends StateBuilder {
         if(data == null){
             LOG.error("No data on znode, can't determine ledger id");
             ((BookKeeperStateBuilder.Context) ctx).setState(null);
+            return;
         }
         
        /*

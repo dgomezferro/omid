@@ -31,7 +31,7 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TTransaction");
 
   private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField ROWS_FIELD_DESC = new org.apache.thrift.protocol.TField("rows", org.apache.thrift.protocol.TType.MAP, (short)2);
+  private static final org.apache.thrift.protocol.TField CELLS_FIELD_DESC = new org.apache.thrift.protocol.TField("cells", org.apache.thrift.protocol.TType.LIST, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -40,12 +40,12 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
   }
 
   public long id; // required
-  public Map<ByteBuffer,List<TPut>> rows; // optional
+  public List<TCell> cells; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     ID((short)1, "id"),
-    ROWS((short)2, "rows");
+    CELLS((short)2, "cells");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -62,8 +62,8 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
       switch(fieldId) {
         case 1: // ID
           return ID;
-        case 2: // ROWS
-          return ROWS;
+        case 2: // CELLS
+          return CELLS;
         default:
           return null;
       }
@@ -106,17 +106,15 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
   // isset id assignments
   private static final int __ID_ISSET_ID = 0;
   private BitSet __isset_bit_vector = new BitSet(1);
-  private _Fields optionals[] = {_Fields.ROWS};
+  private _Fields optionals[] = {_Fields.CELLS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.ROWS, new org.apache.thrift.meta_data.FieldMetaData("rows", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
-            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING            , true), 
-            new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-                new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TPut.class)))));
+    tmpMap.put(_Fields.CELLS, new org.apache.thrift.meta_data.FieldMetaData("cells", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TCell.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TTransaction.class, metaDataMap);
   }
@@ -139,24 +137,12 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.id = other.id;
-    if (other.isSetRows()) {
-      Map<ByteBuffer,List<TPut>> __this__rows = new HashMap<ByteBuffer,List<TPut>>();
-      for (Map.Entry<ByteBuffer, List<TPut>> other_element : other.rows.entrySet()) {
-
-        ByteBuffer other_element_key = other_element.getKey();
-        List<TPut> other_element_value = other_element.getValue();
-
-        ByteBuffer __this__rows_copy_key = org.apache.thrift.TBaseHelper.copyBinary(other_element_key);
-;
-
-        List<TPut> __this__rows_copy_value = new ArrayList<TPut>();
-        for (TPut other_element_value_element : other_element_value) {
-          __this__rows_copy_value.add(new TPut(other_element_value_element));
-        }
-
-        __this__rows.put(__this__rows_copy_key, __this__rows_copy_value);
+    if (other.isSetCells()) {
+      List<TCell> __this__cells = new ArrayList<TCell>();
+      for (TCell other_element : other.cells) {
+        __this__cells.add(new TCell(other_element));
       }
-      this.rows = __this__rows;
+      this.cells = __this__cells;
     }
   }
 
@@ -168,7 +154,7 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
   public void clear() {
     setIdIsSet(false);
     this.id = 0;
-    this.rows = null;
+    this.cells = null;
   }
 
   public long getId() {
@@ -194,38 +180,42 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
     __isset_bit_vector.set(__ID_ISSET_ID, value);
   }
 
-  public int getRowsSize() {
-    return (this.rows == null) ? 0 : this.rows.size();
+  public int getCellsSize() {
+    return (this.cells == null) ? 0 : this.cells.size();
   }
 
-  public void putToRows(ByteBuffer key, List<TPut> val) {
-    if (this.rows == null) {
-      this.rows = new HashMap<ByteBuffer,List<TPut>>();
+  public java.util.Iterator<TCell> getCellsIterator() {
+    return (this.cells == null) ? null : this.cells.iterator();
+  }
+
+  public void addToCells(TCell elem) {
+    if (this.cells == null) {
+      this.cells = new ArrayList<TCell>();
     }
-    this.rows.put(key, val);
+    this.cells.add(elem);
   }
 
-  public Map<ByteBuffer,List<TPut>> getRows() {
-    return this.rows;
+  public List<TCell> getCells() {
+    return this.cells;
   }
 
-  public TTransaction setRows(Map<ByteBuffer,List<TPut>> rows) {
-    this.rows = rows;
+  public TTransaction setCells(List<TCell> cells) {
+    this.cells = cells;
     return this;
   }
 
-  public void unsetRows() {
-    this.rows = null;
+  public void unsetCells() {
+    this.cells = null;
   }
 
-  /** Returns true if field rows is set (has been assigned a value) and false otherwise */
-  public boolean isSetRows() {
-    return this.rows != null;
+  /** Returns true if field cells is set (has been assigned a value) and false otherwise */
+  public boolean isSetCells() {
+    return this.cells != null;
   }
 
-  public void setRowsIsSet(boolean value) {
+  public void setCellsIsSet(boolean value) {
     if (!value) {
-      this.rows = null;
+      this.cells = null;
     }
   }
 
@@ -239,11 +229,11 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
       }
       break;
 
-    case ROWS:
+    case CELLS:
       if (value == null) {
-        unsetRows();
+        unsetCells();
       } else {
-        setRows((Map<ByteBuffer,List<TPut>>)value);
+        setCells((List<TCell>)value);
       }
       break;
 
@@ -255,8 +245,8 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
     case ID:
       return Long.valueOf(getId());
 
-    case ROWS:
-      return getRows();
+    case CELLS:
+      return getCells();
 
     }
     throw new IllegalStateException();
@@ -271,8 +261,8 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
     switch (field) {
     case ID:
       return isSetId();
-    case ROWS:
-      return isSetRows();
+    case CELLS:
+      return isSetCells();
     }
     throw new IllegalStateException();
   }
@@ -299,12 +289,12 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
         return false;
     }
 
-    boolean this_present_rows = true && this.isSetRows();
-    boolean that_present_rows = true && that.isSetRows();
-    if (this_present_rows || that_present_rows) {
-      if (!(this_present_rows && that_present_rows))
+    boolean this_present_cells = true && this.isSetCells();
+    boolean that_present_cells = true && that.isSetCells();
+    if (this_present_cells || that_present_cells) {
+      if (!(this_present_cells && that_present_cells))
         return false;
-      if (!this.rows.equals(that.rows))
+      if (!this.cells.equals(that.cells))
         return false;
     }
 
@@ -334,12 +324,12 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetRows()).compareTo(typedOther.isSetRows());
+    lastComparison = Boolean.valueOf(isSetCells()).compareTo(typedOther.isSetCells());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetRows()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.rows, typedOther.rows);
+    if (isSetCells()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.cells, typedOther.cells);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -367,13 +357,13 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
     sb.append("id:");
     sb.append(this.id);
     first = false;
-    if (isSetRows()) {
+    if (isSetCells()) {
       if (!first) sb.append(", ");
-      sb.append("rows:");
-      if (this.rows == null) {
+      sb.append("cells:");
+      if (this.cells == null) {
         sb.append("null");
       } else {
-        sb.append(this.rows);
+        sb.append(this.cells);
       }
       first = false;
     }
@@ -429,33 +419,21 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // ROWS
-            if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
+          case 2: // CELLS
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TMap _map24 = iprot.readMapBegin();
-                struct.rows = new HashMap<ByteBuffer,List<TPut>>(2*_map24.size);
-                for (int _i25 = 0; _i25 < _map24.size; ++_i25)
+                org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
+                struct.cells = new ArrayList<TCell>(_list24.size);
+                for (int _i25 = 0; _i25 < _list24.size; ++_i25)
                 {
-                  ByteBuffer _key26; // required
-                  List<TPut> _val27; // required
-                  _key26 = iprot.readBinary();
-                  {
-                    org.apache.thrift.protocol.TList _list28 = iprot.readListBegin();
-                    _val27 = new ArrayList<TPut>(_list28.size);
-                    for (int _i29 = 0; _i29 < _list28.size; ++_i29)
-                    {
-                      TPut _elem30; // required
-                      _elem30 = new TPut();
-                      _elem30.read(iprot);
-                      _val27.add(_elem30);
-                    }
-                    iprot.readListEnd();
-                  }
-                  struct.rows.put(_key26, _val27);
+                  TCell _elem26; // required
+                  _elem26 = new TCell();
+                  _elem26.read(iprot);
+                  struct.cells.add(_elem26);
                 }
-                iprot.readMapEnd();
+                iprot.readListEnd();
               }
-              struct.setRowsIsSet(true);
+              struct.setCellsIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -478,24 +456,16 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
       oprot.writeFieldBegin(ID_FIELD_DESC);
       oprot.writeI64(struct.id);
       oprot.writeFieldEnd();
-      if (struct.rows != null) {
-        if (struct.isSetRows()) {
-          oprot.writeFieldBegin(ROWS_FIELD_DESC);
+      if (struct.cells != null) {
+        if (struct.isSetCells()) {
+          oprot.writeFieldBegin(CELLS_FIELD_DESC);
           {
-            oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, struct.rows.size()));
-            for (Map.Entry<ByteBuffer, List<TPut>> _iter31 : struct.rows.entrySet())
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.cells.size()));
+            for (TCell _iter27 : struct.cells)
             {
-              oprot.writeBinary(_iter31.getKey());
-              {
-                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, _iter31.getValue().size()));
-                for (TPut _iter32 : _iter31.getValue())
-                {
-                  _iter32.write(oprot);
-                }
-                oprot.writeListEnd();
-              }
+              _iter27.write(oprot);
             }
-            oprot.writeMapEnd();
+            oprot.writeListEnd();
           }
           oprot.writeFieldEnd();
         }
@@ -521,26 +491,19 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
       if (struct.isSetId()) {
         optionals.set(0);
       }
-      if (struct.isSetRows()) {
+      if (struct.isSetCells()) {
         optionals.set(1);
       }
       oprot.writeBitSet(optionals, 2);
       if (struct.isSetId()) {
         oprot.writeI64(struct.id);
       }
-      if (struct.isSetRows()) {
+      if (struct.isSetCells()) {
         {
-          oprot.writeI32(struct.rows.size());
-          for (Map.Entry<ByteBuffer, List<TPut>> _iter33 : struct.rows.entrySet())
+          oprot.writeI32(struct.cells.size());
+          for (TCell _iter28 : struct.cells)
           {
-            oprot.writeBinary(_iter33.getKey());
-            {
-              oprot.writeI32(_iter33.getValue().size());
-              for (TPut _iter34 : _iter33.getValue())
-              {
-                _iter34.write(oprot);
-              }
-            }
+            _iter28.write(oprot);
           }
         }
       }
@@ -556,28 +519,17 @@ public class TTransaction implements org.apache.thrift.TBase<TTransaction, TTran
       }
       if (incoming.get(1)) {
         {
-          org.apache.thrift.protocol.TMap _map35 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
-          struct.rows = new HashMap<ByteBuffer,List<TPut>>(2*_map35.size);
-          for (int _i36 = 0; _i36 < _map35.size; ++_i36)
+          org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.cells = new ArrayList<TCell>(_list29.size);
+          for (int _i30 = 0; _i30 < _list29.size; ++_i30)
           {
-            ByteBuffer _key37; // required
-            List<TPut> _val38; // required
-            _key37 = iprot.readBinary();
-            {
-              org.apache.thrift.protocol.TList _list39 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-              _val38 = new ArrayList<TPut>(_list39.size);
-              for (int _i40 = 0; _i40 < _list39.size; ++_i40)
-              {
-                TPut _elem41; // required
-                _elem41 = new TPut();
-                _elem41.read(iprot);
-                _val38.add(_elem41);
-              }
-            }
-            struct.rows.put(_key37, _val38);
+            TCell _elem31; // required
+            _elem31 = new TCell();
+            _elem31.read(iprot);
+            struct.cells.add(_elem31);
           }
         }
-        struct.setRowsIsSet(true);
+        struct.setCellsIsSet(true);
       }
     }
   }

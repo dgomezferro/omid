@@ -418,14 +418,14 @@ public class TResultGet implements org.apache.thrift.TBase<TResultGet, TResultGe
           case 1: // RESULTS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list66 = iprot.readListBegin();
-                struct.results = new ArrayList<TResult>(_list66.size);
-                for (int _i67 = 0; _i67 < _list66.size; ++_i67)
+                org.apache.thrift.protocol.TList _list56 = iprot.readListBegin();
+                struct.results = new ArrayList<TResult>(_list56.size);
+                for (int _i57 = 0; _i57 < _list56.size; ++_i57)
                 {
-                  TResult _elem68; // required
-                  _elem68 = new TResult();
-                  _elem68.read(iprot);
-                  struct.results.add(_elem68);
+                  TResult _elem58; // required
+                  _elem58 = new TResult();
+                  _elem58.read(iprot);
+                  struct.results.add(_elem58);
                 }
                 iprot.readListEnd();
               }
@@ -462,9 +462,9 @@ public class TResultGet implements org.apache.thrift.TBase<TResultGet, TResultGe
         oprot.writeFieldBegin(RESULTS_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.results.size()));
-          for (TResult _iter69 : struct.results)
+          for (TResult _iter59 : struct.results)
           {
-            _iter69.write(oprot);
+            _iter59.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -494,9 +494,9 @@ public class TResultGet implements org.apache.thrift.TBase<TResultGet, TResultGe
       TTupleProtocol oprot = (TTupleProtocol) prot;
       {
         oprot.writeI32(struct.results.size());
-        for (TResult _iter70 : struct.results)
+        for (TResult _iter60 : struct.results)
         {
-          _iter70.write(oprot);
+          _iter60.write(oprot);
         }
       }
       struct.transaction.write(oprot);
@@ -506,14 +506,14 @@ public class TResultGet implements org.apache.thrift.TBase<TResultGet, TResultGe
     public void read(org.apache.thrift.protocol.TProtocol prot, TResultGet struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       {
-        org.apache.thrift.protocol.TList _list71 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-        struct.results = new ArrayList<TResult>(_list71.size);
-        for (int _i72 = 0; _i72 < _list71.size; ++_i72)
+        org.apache.thrift.protocol.TList _list61 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+        struct.results = new ArrayList<TResult>(_list61.size);
+        for (int _i62 = 0; _i62 < _list61.size; ++_i62)
         {
-          TResult _elem73; // required
-          _elem73 = new TResult();
-          _elem73.read(iprot);
-          struct.results.add(_elem73);
+          TResult _elem63; // required
+          _elem63 = new TResult();
+          _elem63.read(iprot);
+          struct.results.add(_elem63);
         }
       }
       struct.setResultsIsSet(true);

@@ -16,50 +16,65 @@
 
 package com.yahoo.omid.client;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.yahoo.omid.tso.RowKey;
+
 public class TransactionState {
-   private long startTimestamp;
-   private long commitTimestamp;
-   private Set<RowKeyFamily> rows;
-   
-   public TSOClient tsoclient;
+    private long startTimestamp;
+    private long commitTimestamp;
+    private Set<Cell> cells;
+    
+    private static Comparator<byte[]> COMPARATOR = new ByteArrayComparator();
 
-   TransactionState() {
-      startTimestamp = 0;
-      commitTimestamp = 0;
-      this.rows = new HashSet<RowKeyFamily>();
-   }
+    public TSOClient tsoclient;
 
-   TransactionState(long startTimestamp, TSOClient client) {
-      this();
-      this.startTimestamp = startTimestamp;;
-      this.commitTimestamp = 0;
-      this.tsoclient = client;
-   }
+    TransactionState() {
+        startTimestamp = 0;
+        commitTimestamp = 0;
+        this.cells = new HashSet<Cell>();
+    }
 
-   public long getStartTimestamp() {
-      return startTimestamp;
-   }
-   
-   public long getCommitTimestamp() {
-      return commitTimestamp;
-   }
+    TransactionState(long startTimestamp, TSOClient client) {
+        this();
+        this.startTimestamp = startTimestamp;
+        this.commitTimestamp = 0;
+        this.tsoclient = client;
+    }
 
-   void setCommitTimestamp(long commitTimestamp) {
-      this.commitTimestamp = commitTimestamp;
-   }
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
 
-   public RowKeyFamily[] getRows() {
-      return rows.toArray(new RowKeyFamily[0]);
-   }
+    public long getCommitTimestamp() {
+        return commitTimestamp;
+    }
 
-   void addRow(RowKeyFamily row) {
-      rows.add(row);
-   }
+    void setCommitTimestamp(long commitTimestamp) {
+        this.commitTimestamp = commitTimestamp;
+    }
 
-   public String toString() {
-      return "Transaction-" + Long.toHexString(startTimestamp);
-   }
+    public Set<RowKey> getRowKeys() {
+        Set<RowKey> rows = new HashSet<RowKey>();
+        for (Cell cell : cells) {
+            rows.add(new RowKey(cell.getTable(), cell.getRowKey()));
+        }
+        return rows;
+    }
+    
+    public Set<Cell> getCells() {
+        return cells;
+    }
+
+    void addCell(Cell cell) {
+        cells.add(cell);
+    }
+
+    @Override
+    public String toString() {
+        return "TransactionState [startTimestamp=" + startTimestamp + ", commitTimestamp=" + commitTimestamp
+                + ", cells=" + cells + "]";
+    }
 }

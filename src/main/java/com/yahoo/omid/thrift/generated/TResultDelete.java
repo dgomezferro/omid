@@ -418,14 +418,14 @@ public class TResultDelete implements org.apache.thrift.TBase<TResultDelete, TRe
           case 1: // RESULTS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list74 = iprot.readListBegin();
-                struct.results = new ArrayList<TDelete>(_list74.size);
-                for (int _i75 = 0; _i75 < _list74.size; ++_i75)
+                org.apache.thrift.protocol.TList _list64 = iprot.readListBegin();
+                struct.results = new ArrayList<TDelete>(_list64.size);
+                for (int _i65 = 0; _i65 < _list64.size; ++_i65)
                 {
-                  TDelete _elem76; // required
-                  _elem76 = new TDelete();
-                  _elem76.read(iprot);
-                  struct.results.add(_elem76);
+                  TDelete _elem66; // required
+                  _elem66 = new TDelete();
+                  _elem66.read(iprot);
+                  struct.results.add(_elem66);
                 }
                 iprot.readListEnd();
               }
@@ -462,9 +462,9 @@ public class TResultDelete implements org.apache.thrift.TBase<TResultDelete, TRe
         oprot.writeFieldBegin(RESULTS_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.results.size()));
-          for (TDelete _iter77 : struct.results)
+          for (TDelete _iter67 : struct.results)
           {
-            _iter77.write(oprot);
+            _iter67.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -494,9 +494,9 @@ public class TResultDelete implements org.apache.thrift.TBase<TResultDelete, TRe
       TTupleProtocol oprot = (TTupleProtocol) prot;
       {
         oprot.writeI32(struct.results.size());
-        for (TDelete _iter78 : struct.results)
+        for (TDelete _iter68 : struct.results)
         {
-          _iter78.write(oprot);
+          _iter68.write(oprot);
         }
       }
       struct.transaction.write(oprot);
@@ -506,14 +506,14 @@ public class TResultDelete implements org.apache.thrift.TBase<TResultDelete, TRe
     public void read(org.apache.thrift.protocol.TProtocol prot, TResultDelete struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       {
-        org.apache.thrift.protocol.TList _list79 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-        struct.results = new ArrayList<TDelete>(_list79.size);
-        for (int _i80 = 0; _i80 < _list79.size; ++_i80)
+        org.apache.thrift.protocol.TList _list69 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+        struct.results = new ArrayList<TDelete>(_list69.size);
+        for (int _i70 = 0; _i70 < _list69.size; ++_i70)
         {
-          TDelete _elem81; // required
-          _elem81 = new TDelete();
-          _elem81.read(iprot);
-          struct.results.add(_elem81);
+          TDelete _elem71; // required
+          _elem71 = new TDelete();
+          _elem71.read(iprot);
+          struct.results.add(_elem71);
         }
       }
       struct.setResultsIsSet(true);

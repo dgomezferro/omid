@@ -633,14 +633,14 @@ public class TDelete implements org.apache.thrift.TBase<TDelete, TDelete._Fields
           case 2: // COLUMNS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list42 = iprot.readListBegin();
-                struct.columns = new ArrayList<TColumn>(_list42.size);
-                for (int _i43 = 0; _i43 < _list42.size; ++_i43)
+                org.apache.thrift.protocol.TList _list32 = iprot.readListBegin();
+                struct.columns = new ArrayList<TColumn>(_list32.size);
+                for (int _i33 = 0; _i33 < _list32.size; ++_i33)
                 {
-                  TColumn _elem44; // required
-                  _elem44 = new TColumn();
-                  _elem44.read(iprot);
-                  struct.columns.add(_elem44);
+                  TColumn _elem34; // required
+                  _elem34 = new TColumn();
+                  _elem34.read(iprot);
+                  struct.columns.add(_elem34);
                 }
                 iprot.readListEnd();
               }
@@ -690,9 +690,9 @@ public class TDelete implements org.apache.thrift.TBase<TDelete, TDelete._Fields
           oprot.writeFieldBegin(COLUMNS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.columns.size()));
-            for (TColumn _iter45 : struct.columns)
+            for (TColumn _iter35 : struct.columns)
             {
-              _iter45.write(oprot);
+              _iter35.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -743,9 +743,9 @@ public class TDelete implements org.apache.thrift.TBase<TDelete, TDelete._Fields
       if (struct.isSetColumns()) {
         {
           oprot.writeI32(struct.columns.size());
-          for (TColumn _iter46 : struct.columns)
+          for (TColumn _iter36 : struct.columns)
           {
-            _iter46.write(oprot);
+            _iter36.write(oprot);
           }
         }
       }
@@ -765,14 +765,14 @@ public class TDelete implements org.apache.thrift.TBase<TDelete, TDelete._Fields
       BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
         {
-          org.apache.thrift.protocol.TList _list47 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.columns = new ArrayList<TColumn>(_list47.size);
-          for (int _i48 = 0; _i48 < _list47.size; ++_i48)
+          org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.columns = new ArrayList<TColumn>(_list37.size);
+          for (int _i38 = 0; _i38 < _list37.size; ++_i38)
           {
-            TColumn _elem49; // required
-            _elem49 = new TColumn();
-            _elem49.read(iprot);
-            struct.columns.add(_elem49);
+            TColumn _elem39; // required
+            _elem39 = new TColumn();
+            _elem39.read(iprot);
+            struct.columns.add(_elem39);
           }
         }
         struct.setColumnsIsSet(true);

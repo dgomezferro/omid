@@ -19,9 +19,11 @@ package com.yahoo.omid.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +31,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.HTable;
+
+import com.yahoo.omid.tso.RowKey;
 
 /**
  * Provides the methods necessary to create and commit transactions.
@@ -78,6 +82,15 @@ public class TransactionManager {
       return new TransactionState(cb.getStartTimestamp(), tsoclient);
    }
 
+   private RowKey[] rowKeysFromCells(Set<Cell> cells) {
+      Set<RowKey> rowKeys = new HashSet<RowKey>();
+      for (Cell cell : cells) {
+          rowKeys.add(new RowKey(cell.getTable(), cell.getRowKey()));
+      }
+      return rowKeys.toArray(new RowKey[rowKeys.size()]);
+   }
+   
+
    /**
     * Commits a transaction. If the transaction is aborted it automatically rollbacks the changes and
     * throws a {@link CommitUnsuccessfulException}.
@@ -94,7 +107,7 @@ public class TransactionManager {
       SyncCommitCallback cb = new SyncCommitCallback();
       try {
          tsoclient.commit(transactionState.getStartTimestamp(),
-                          transactionState.getRows(), cb);
+                          rowKeysFromCells(transactionState.getCells()), cb);
          cb.await();
       } catch (Exception e) {
          throw new TransactionException("Could not commit", e);
@@ -144,18 +157,14 @@ public class TransactionManager {
    private void cleanup(final TransactionState transactionState)
          throws TransactionException {
       Map<byte[], List<Delete>> deleteBatches = new HashMap<byte[], List<Delete>>();
-      for (final RowKeyFamily rowkey : transactionState.getRows()) {
-         List<Delete> batch = deleteBatches.get(rowkey.getTable());
+      for (final Cell cell : transactionState.getCells()) {
+         List<Delete> batch = deleteBatches.get(cell.getTable());
          if (batch == null) {
             batch = new ArrayList<Delete>();
-            deleteBatches.put(rowkey.getTable(), batch);
+            deleteBatches.put(cell.getTable(), batch);
          }
-         Delete delete = new Delete(rowkey.getRow());
-         for (Entry<byte[], List<KeyValue>> entry : rowkey.getFamilies().entrySet()) {
-            for (KeyValue kv : entry.getValue()) {
-               delete.deleteColumn(entry.getKey(), kv.getQualifier(), transactionState.getStartTimestamp());
-            }
-         }
+         Delete delete = new Delete(cell.getRowKey());
+         delete.deleteColumn(cell.getColumnFamily(), cell.getColumnQualifier(), transactionState.getStartTimestamp());
          batch.add(delete);
       }
       for (final Entry<byte[], List<Delete>> entry : deleteBatches.entrySet()) {
@@ -179,11 +188,11 @@ public class TransactionManager {
       }
    }
 
-    public TransactionState createTransactionState(long id, List<RowKeyFamily> rows) {
-        TransactionState ts = new TransactionState(id, tsoclient);
-        for (RowKeyFamily rkf : rows) {
-            ts.addRow(rkf);
-        }
-        return ts;
-    }
+   public TransactionState createTransactionState(long id, List<Cell> cells) {
+      TransactionState ts = new TransactionState(id, tsoclient);
+      for (Cell cell : cells) {
+         ts.addCell(cell);
+      }
+      return ts;
+   }
 }

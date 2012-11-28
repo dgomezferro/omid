@@ -115,9 +115,16 @@ struct TPut {
   3: optional bool writeToWal = 1
 }
 
+struct TCell {
+  1: required binary table,
+  2: required binary row,
+  3: required binary family,
+  4: required binary qualifier,
+}
+
 struct TTransaction {
   1:i64 id,
-  2:optional map<binary, list<TPut>> rows
+  2:optional list<TCell> cells
 }
 
 /**

@@ -126,6 +126,11 @@ public class SharedMessageBuffer {
             return this.channel.equals(buf.channel);
         }
 
+        @Override
+        public int hashCode() {
+            return this.channel.hashCode();
+        }
+
     }
 
     public ReadingBuffer getReadingBuffer(ChannelHandlerContext ctx) {
