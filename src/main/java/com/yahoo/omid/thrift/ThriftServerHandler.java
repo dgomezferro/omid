@@ -1,6 +1,5 @@
 package com.yahoo.omid.thrift;
 
-import static com.yahoo.omid.thrift.ThriftUtilities.deletesFromHBase;
 import static com.yahoo.omid.thrift.ThriftUtilities.deletesFromThrift;
 import static com.yahoo.omid.thrift.ThriftUtilities.getFromThrift;
 import static com.yahoo.omid.thrift.ThriftUtilities.putsFromThrift;
@@ -12,17 +11,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
@@ -36,7 +32,6 @@ import com.yahoo.omid.client.TransactionManager;
 import com.yahoo.omid.client.TransactionState;
 import com.yahoo.omid.client.TransactionalTable;
 import com.yahoo.omid.thrift.generated.TCell;
-import com.yahoo.omid.thrift.generated.TColumnValue;
 import com.yahoo.omid.thrift.generated.TDelete;
 import com.yahoo.omid.thrift.generated.TGet;
 import com.yahoo.omid.thrift.generated.TIOError;
@@ -44,7 +39,6 @@ import com.yahoo.omid.thrift.generated.TIllegalArgument;
 import com.yahoo.omid.thrift.generated.TOmidService;
 import com.yahoo.omid.thrift.generated.TPut;
 import com.yahoo.omid.thrift.generated.TResult;
-import com.yahoo.omid.thrift.generated.TResultDelete;
 import com.yahoo.omid.thrift.generated.TResultExists;
 import com.yahoo.omid.thrift.generated.TResultGet;
 import com.yahoo.omid.thrift.generated.TResultScanner;
@@ -121,9 +115,11 @@ public class ThriftServerHandler implements TOmidService.Iface {
 
     private TransactionState transactionFromThrift(TTransaction transaction) {
         List<Cell> cells = new ArrayList<Cell>();
-        for (TCell tcell : transaction.getCells()) {
-            Cell cell = new Cell(tcell.getTable(), tcell.getRow(), tcell.getFamily(), tcell.getQualifier());
-            cells.add(cell);
+        if (transaction.getCells() != null) {
+            for (TCell tcell : transaction.getCells()) {
+                Cell cell = new Cell(tcell.getTable(), tcell.getRow(), tcell.getFamily(), tcell.getQualifier());
+                cells.add(cell);
+            }
         }
         return transactionManager.createTransactionState(transaction.getId(), cells);
     }
@@ -225,18 +221,20 @@ public class ThriftServerHandler implements TOmidService.Iface {
     }
 
     @Override
-    public TResultDelete deleteMultiple(ByteBuffer table, List<TDelete> deletes, TTransaction transaction) throws TIOError, TException {
-        List<Delete> tempDeletes = deletesFromThrift(deletes);
+    public TTransaction deleteMultiple(ByteBuffer table, List<TDelete> deletes, TTransaction transaction) throws TIOError, TException {
         TransactionalTable htable = null;
         try {
             htable = getTable(table.array());
-            htable.delete(tempDeletes);
+            TransactionState ts = transactionFromThrift(transaction);
+            for (Delete delete : deletesFromThrift(deletes)) {
+                htable.delete(ts, delete);
+            }
+            return transactionFromOmid(ts);
         } catch (IOException e) {
             throw getTIOError(e);
         } finally {
             closeTable(htable);
         }
-        return new TResultDelete(deletesFromHBase(tempDeletes), transaction);
     }
 
     @Override
@@ -245,7 +243,8 @@ public class ThriftServerHandler implements TOmidService.Iface {
         TransactionalTable htable = null;
         try {
             htable = getTable(table.array());
-            resultScanner = htable.getScanner(scanFromThrift(scan));
+            TransactionState ts = transactionFromThrift(transaction);
+            resultScanner = htable.getScanner(ts, scanFromThrift(scan));
         } catch (IOException e) {
             closeTable(htable);
             throw getTIOError(e);
@@ -291,7 +290,7 @@ public class ThriftServerHandler implements TOmidService.Iface {
     @Override
     public boolean commitTransaction(TTransaction transaction) throws TIOError, TException {
         try {
-            TransactionState ts = transactionManager.beginTransaction();
+            TransactionState ts = transactionFromThrift(transaction);
             transactionManager.tryCommit(ts);
             return true;
         } catch (CommitUnsuccessfulException e) {

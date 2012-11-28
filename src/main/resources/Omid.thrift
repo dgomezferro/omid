@@ -191,11 +191,6 @@ struct TResultGet {
   2: required TTransaction transaction
 }
 
-struct TResultDelete {
-  1: required list<TDelete> results,
-  2: required TTransaction transaction
-}
-
 struct TResultScanner {
   1: required i32 scannerId,
   2: required TTransaction transaction
@@ -297,7 +292,7 @@ service TOmidService {
    * executed. So if everything succeeds you'll
    * receive an empty list.
    */
-  TResultDelete deleteMultiple(
+  TTransaction deleteMultiple(
     /** the table to delete from */
     1: required binary table,
 
